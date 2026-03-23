@@ -1,21 +1,20 @@
 import { useState } from "react";
 import { StyleSheet, Switch, Text, View } from 'react-native'
-
-type Alarm = {
-  id: string;
-  period: string;
-  time: string;
-  label: string;
-  days: string;
-  enabled: boolean;
-};
+import { Alarm, enableAlarm } from "../store/alarmSlice";
+import { useDispatch } from "react-redux";
 
 type Props = {
   alarm: Alarm;
 };
 
 export default function AlarmItem({ alarm }: Props) {
-  const [enabled, setEnabled] = useState(alarm.enabled)
+  // const [enabled, setEnabled] = useState(alarm.enabled)
+  const enabled = alarm.enabled
+  const dispatch = useDispatch()
+  const setEnabled = () => {
+    dispatch(enableAlarm({id:alarm.id}))
+  }
+
 
   return (
     <View style={[styles.card, !enabled && styles.cardDisabled]}>
@@ -23,18 +22,25 @@ export default function AlarmItem({ alarm }: Props) {
         <Text style={[styles.label, !enabled && styles.textDisabled]}>
           {alarm.label}
         </Text>
-        <View style={{flex: 1, flexDirection: 'row', gap: 10,}}>
-        <Text style={[styles.time, !enabled && styles.textDisabled]}>
-          {alarm.time}
-        </Text>
-        <Text style={[styles.period, !enabled && styles.textDisabled]}>
-          {alarm.period}
-        </Text>
-        </View>
+        <View style={{ flex: 1, flexDirection: 'row', gap: 10, }}>
+          <Text style={[styles.time, !enabled && styles.textDisabled]}>
+            {alarm.time}
+          </Text>
+          <Text style={[styles.period, !enabled && styles.textDisabled]}>
+            {alarm.period}
+          </Text>
+        </View> 
 
-        <Text style={[styles.days, !enabled && styles.textDisabled]}>
-          {alarm.days}
-        </Text>
+        <View style={{marginTop: 2, flexDirection: 'row', gap: 4}}>
+          {
+            alarm.days.map(day => (
+              <Text key={day} style={[styles.days, !enabled && styles.textDisabled]}>
+                {day}
+              </Text>
+            ))
+          }
+
+        </View>
 
       </View>
 
@@ -57,7 +63,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     borderRadius: 16,
     padding: 20,
-    
+
   },
   cardDisabled: {
     backgroundColor: '#262626',
@@ -83,7 +89,6 @@ const styles = StyleSheet.create({
   days: {
     fontSize: 12,
     color: '#8E8E93',
-    marginTop: 2,
   },
   textDisabled: {
     color: '#fff',

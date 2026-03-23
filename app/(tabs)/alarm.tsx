@@ -5,36 +5,12 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import AlarmItem from '@/src/components/AlarmItem';
-
-const MOCK_ALARMS = [
-  {
-    id: '1',
-    time: '06:00',
-    period: 'AM',
-    label: 'Work',
-    days: 'Mon, Tue, Thu, Fri, Sat',
-    enabled: true,
-  },
-  {
-    id: '2',
-    time: '06:30',
-    period: 'AM',
-    label: 'Day off',
-    days: 'Wed, Sun',
-    enabled: false,
-  },
-  {
-    id: '3',
-    time: '08:00',
-    period: 'AM',
-    label: 'Gym',
-    days: 'Wed, Sun',
-    enabled: false,
-  },
-];
+import AlarmItem from '../../src/components/AlarmItem';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../src/store/store';
 
 export default function AlarmScreen() {
+  const alarms = useSelector((state: RootState) => state.alarm.alarms)
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -49,7 +25,7 @@ export default function AlarmScreen() {
       </View>
 
       <FlatList
-        data={MOCK_ALARMS}
+        data={alarms}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <AlarmItem alarm={item} />}
         contentContainerStyle={styles.list}

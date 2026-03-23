@@ -1,9 +1,11 @@
 import { Stack } from "expo-router";
 import { StatusBar } from 'expo-status-bar';
+import { Provider } from 'react-redux'
+import { store } from "../src/store/store";
 
-export default function RootLayout() {
+export default function RootLayout() { 
   return (
-    <>
+    <Provider store={store}>
     <StatusBar style="light" />
     <Stack>
       <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
@@ -14,7 +16,7 @@ export default function RootLayout() {
         headerTintColor: 'fff'
       }}/>
     </Stack>
-    </>
+    </Provider>
   )
     
 }
