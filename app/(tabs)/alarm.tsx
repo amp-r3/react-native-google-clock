@@ -34,7 +34,7 @@ export default function AlarmScreen() {
         />
 
       <TouchableOpacity
-        style={[styles.fab, { bottom: insets.bottom + 24 }]}
+        style={[styles.fab, { bottom: insets.bottom }]}
         onPress={() => router.push('/add-alarm')}
       >
         <Ionicons name="add" size={30} color="#000" />
@@ -68,10 +68,10 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 24,
-    width: 64,
-    height: 64,
+    width: 72,
+    height: 72,
     borderRadius: 12,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#d4d4d4',
     justifyContent: 'center',
     alignItems: 'center',
   },

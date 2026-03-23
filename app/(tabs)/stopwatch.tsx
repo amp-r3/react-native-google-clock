@@ -5,7 +5,7 @@ export default function StopWatchScreen() {
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <Text style={styles.title}>Часы</Text>
+      <Text style={styles.title}>StopWatch</Text>
     </View>
   );
 }

@@ -13,7 +13,7 @@ export default function RootLayout() {
         title: 'New Alarm',
         presentation: 'modal',
         headerStyle: { backgroundColor: '#1C1C1E' },
-        headerTintColor: 'fff'
+        headerTintColor: '#fff'
       }}/>
     </Stack>
     </Provider>

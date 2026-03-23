@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { StyleSheet, Switch, Text, View } from 'react-native'
 import { Alarm, enableAlarm } from "../store/alarmSlice";
 import { useDispatch } from "react-redux";
@@ -8,7 +7,6 @@ type Props = {
 };
 
 export default function AlarmItem({ alarm }: Props) {
-  // const [enabled, setEnabled] = useState(alarm.enabled)
   const enabled = alarm.enabled
   const dispatch = useDispatch()
   const setEnabled = () => {
@@ -34,7 +32,7 @@ export default function AlarmItem({ alarm }: Props) {
         <View style={{marginTop: 2, flexDirection: 'row', gap: 4}}>
           {
             alarm.days.map(day => (
-              <Text key={day} style={[styles.days, !enabled && styles.textDisabled]}>
+              <Text key={day} style={[styles.days, !enabled && styles.daysDisabled]}>
                 {day}
               </Text>
             ))
@@ -47,8 +45,9 @@ export default function AlarmItem({ alarm }: Props) {
       <Switch
         value={enabled}
         onValueChange={setEnabled}
-        trackColor={{ false: '#3A3A3C', true: '#8AB4F8' }}
-        thumbColor={enabled ? '#f5f5f5' : '#636366'}
+        trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
+        thumbColor={enabled ? '#fff' : '#636366'}
+        style={{ transform: [{ scaleX: 1.4 }, { scaleY: 1.4 }] }}
       />
 
     </View>
@@ -60,13 +59,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#d4d4d4',
     borderRadius: 16,
     padding: 20,
 
   },
   cardDisabled: {
-    backgroundColor: '#262626',
+    backgroundColor: '#212121',
   },
   info: {
     gap: 2,
@@ -88,7 +87,12 @@ const styles = StyleSheet.create({
   },
   days: {
     fontSize: 12,
-    color: '#8E8E93',
+    fontWeight: '600',
+    color: '#5c5c5c',
+  },
+  daysDisabled: {
+    color: '#d1d1d1',
+    fontWeight: '400'
   },
   textDisabled: {
     color: '#fff',
