@@ -1,6 +1,8 @@
-import { StyleSheet, Switch, Text, View } from 'react-native'
+import { StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
 import { Alarm, enableAlarm } from "../store/alarmSlice";
 import { useDispatch } from "react-redux";
+import { useRoute } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 
 type Props = {
   alarm: Alarm;
@@ -12,10 +14,11 @@ export default function AlarmItem({ alarm }: Props) {
   const setEnabled = () => {
     dispatch(enableAlarm({id:alarm.id}))
   }
+  const router = useRouter()
 
 
   return (
-    <View style={[styles.card, !enabled && styles.cardDisabled]}>
+    <TouchableOpacity onPress={()=>{router.push('/add-alarm')}} style={[styles.card, !enabled && styles.cardDisabled]}>
       <View style={styles.info}>
         <Text style={[styles.label, !enabled && styles.textDisabled]}>
           {alarm.label}
@@ -50,7 +53,7 @@ export default function AlarmItem({ alarm }: Props) {
         style={{ transform: [{ scaleX: 1.4 }, { scaleY: 1.4 }] }}
       />
 
-    </View>
+    </TouchableOpacity>
   )
 }
 
@@ -62,7 +65,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#d4d4d4',
     borderRadius: 16,
     padding: 20,
-
   },
   cardDisabled: {
     backgroundColor: '#212121',

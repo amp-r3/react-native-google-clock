@@ -93,7 +93,6 @@ function AnimatedTabBar({ state, navigation }: BottomTabBarProps) {
 
       {TABS.map((tab, index) => {
         const isActive = state.index === index;
-        const color = isActive ? "#fff" : "#636366";
 
         return (
           <TouchableOpacity
@@ -103,8 +102,8 @@ function AnimatedTabBar({ state, navigation }: BottomTabBarProps) {
             onPress={() => handlePress(index)}
             activeOpacity={0.7}
           >
-            <Ionicons name={tab.icon as IconName} size={22} color={color} />
-            <Text style={[styles.label, { color }]}>{tab.title}</Text>
+            <Ionicons name={tab.icon as IconName} size={22} color="#fff" />
+            <Text style={[styles.label, { color: "#fff" }]}>{tab.title}</Text>
           </TouchableOpacity>
         );
       })}
@@ -115,7 +114,7 @@ function AnimatedTabBar({ state, navigation }: BottomTabBarProps) {
 const styles = StyleSheet.create({
   tabBar: {
     flexDirection: "row",
-    backgroundColor: "#0d0d0d",
+    backgroundColor: "#2b2b2b",
     borderTopWidth: 0.2,
     borderTopColor: "rgba(255,255,255, 0.2)",
     paddingHorizontal: 6,

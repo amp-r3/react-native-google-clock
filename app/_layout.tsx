@@ -12,7 +12,7 @@ export default function RootLayout() {
       <Stack.Screen name="add-alarm" options={{
         title: 'New Alarm',
         presentation: 'modal',
-        headerStyle: { backgroundColor: '#1C1C1E' },
+        headerStyle: { backgroundColor: '#141414' },
         headerTintColor: '#fff'
       }}/>
     </Stack>

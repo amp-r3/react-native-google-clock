@@ -234,6 +234,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     paddingHorizontal: 16,
+    marginBottom: 67,
     gap: 6,
   },
   button: {
