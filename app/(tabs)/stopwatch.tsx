@@ -20,7 +20,7 @@ export default function StopWatchScreen() {
   const [laps, setLaps] = useState<number[]>([]);
 
   function formatTime(ms: number): string {
-    const totalCs = Math.floor(ms / 10); 
+    const totalCs = Math.floor(ms / 10);
     const cs = totalCs % 100;
     const totalSec = Math.floor(ms / 1000);
     const seconds = totalSec % 60;
@@ -112,13 +112,13 @@ export default function StopWatchScreen() {
       )}
 
       <View style={styles.buttonsContainer}>
-        {isRunning ? (
+        {!!isRunning ? (
           <TouchableOpacity
             style={[styles.button, styles.stopButton]}
             onPress={handleStop}
             activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>Stop</Text>
+            <Text style={[styles.buttonText, styles.startStopText]}>Stop</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
@@ -126,25 +126,30 @@ export default function StopWatchScreen() {
             onPress={handleStart}
             activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>Start</Text>
+            <Text style={[styles.buttonText, styles.startStopText]}>Start</Text>
           </TouchableOpacity>
         )}
 
-        <TouchableOpacity
-          style={[styles.button, styles.secondaryButton]}
-          onPress={handleReset}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.buttonText}>Reset</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.button, styles.secondaryButton]}
-          onPress={handleLap}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.buttonText}>Lap</Text>
-        </TouchableOpacity>
+        {
+          !!displayTime &&
+          <TouchableOpacity
+            style={[styles.button, styles.secondaryButton]}
+            onPress={handleReset}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.buttonText}>Reset</Text>
+          </TouchableOpacity>
+        }
+        {
+          !!isRunning &&
+          <TouchableOpacity
+            style={[styles.button, styles.secondaryButton]}
+            onPress={handleLap}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.buttonText}>Lap</Text>
+          </TouchableOpacity>
+        }
       </View>
     </View>
   );
@@ -153,7 +158,7 @@ export default function StopWatchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1C1C1E',
+    backgroundColor: '#141414',
   },
 
   header: {
@@ -188,9 +193,9 @@ const styles = StyleSheet.create({
     }),
   },
   timerTextDisabled: {
-    color: '#fff',
+    color: '#bababa',
     fontSize: 80,
-    fontWeight: '200',
+    fontWeight: '700',
     letterSpacing: -2,
     fontVariant: ['tabular-nums'],
     ...Platform.select({
@@ -207,7 +212,6 @@ const styles = StyleSheet.create({
 
   lapsContainer: {
     paddingHorizontal: 20,
-    marginBottom: 8,
   },
   lapRow: {
     flexDirection: 'row',
@@ -227,30 +231,36 @@ const styles = StyleSheet.create({
   },
 
   buttonsContainer: {
+    flex: 1,
+    justifyContent: 'flex-start',
     paddingHorizontal: 16,
-    paddingBottom: 16,
-    gap: 10,
+    gap: 6,
   },
   button: {
     width: '100%',
-    paddingVertical: 50,
-    borderRadius: 14,
+    paddingVertical: 45,
+    borderRadius: 99,
     alignItems: 'center',
     justifyContent: 'center',
   },
   stopButton: {
+    borderRadius: 22,
     backgroundColor: '#FF6B6B',
   },
   startButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#d4d4d4',
   },
   secondaryButton: {
-    backgroundColor: '#383838',
+    paddingVertical: 35,
+    backgroundColor: '#2b2b2b',
+  },
+  startStopText: {
+    color: '#1C1C1E'
   },
   buttonText: {
     color: '#fff',
     fontSize: 18,
-    fontWeight: '500',
+    fontWeight: '400',
     letterSpacing: 0.2,
   },
 });
