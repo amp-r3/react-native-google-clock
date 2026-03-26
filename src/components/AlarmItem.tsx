@@ -1,59 +1,84 @@
 import { StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
-import { Alarm, enableAlarm } from "../store/alarmSlice";
+import { Alarm, days, enableAlarm } from "../store/alarmSlice";
 import { useDispatch } from "react-redux";
 import { useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 
 type Props = {
   alarm: Alarm;
 };
 
+const DAYS: days[] = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+
 export default function AlarmItem({ alarm }: Props) {
   const enabled = alarm.enabled
   const dispatch = useDispatch()
   const setEnabled = () => {
-    dispatch(enableAlarm({id:alarm.id}))
+    dispatch(enableAlarm({ id: alarm.id }))
   }
   const router = useRouter()
 
-
   return (
-    <TouchableOpacity onPress={()=>{router.push({ pathname: '/add-alarm', params: { id: alarm.id } })}} style={[styles.card, !enabled && styles.cardDisabled]}>
+    <TouchableOpacity
+      onPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        router.push({ pathname: '/add-alarm', params: { id: alarm.id } });
+      }}
+      style={[styles.card, !enabled && styles.cardDisabled]}
+    >
       <View style={styles.info}>
         <Text style={[styles.label, !enabled && styles.textDisabled]}>
           {alarm.label}
         </Text>
-        <View style={{ flex: 1, flexDirection: 'row', gap: 10, }}>
+
+        <View style={styles.timeRow}>
           <Text style={[styles.time, !enabled && styles.textDisabled]}>
             {alarm.time}
           </Text>
           <Text style={[styles.period, !enabled && styles.textDisabled]}>
             {alarm.period}
           </Text>
-        </View> 
-
-        <View style={{marginTop: 2, flexDirection: 'row', gap: 4}}>
-          {
-            alarm.days.map(day => (
-              <Text key={day} style={[styles.days, !enabled && styles.daysDisabled]}>
-                {day}
-              </Text>
-            ))
-          }
-
         </View>
 
+        <View style={styles.daysRow}>
+          {DAYS.map(day => {
+            const isActive = alarm.days.includes(day);
+            return (
+              <View
+                key={day}
+                style={[
+                  styles.dayBadge,
+                  isActive && (enabled ? styles.dayBadgeActive : styles.dayBadgeActiveDisabled),
+                  !isActive && (enabled ? styles.dayBadgeInactive : styles.dayBadgeInactiveDisabled),
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.dayText,
+                    isActive && (enabled ? styles.dayTextActive : styles.dayTextActiveDisabled),
+                    !isActive && (enabled ? styles.dayTextInactive : styles.dayTextInactiveDisabled),
+                  ]}
+                >
+                  {day}
+                </Text>
+              </View>
+            );
+          })}
+        </View>
       </View>
 
       <Switch
         value={enabled}
-        onValueChange={setEnabled}
+        onValueChange={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          setEnabled();
+        }}
         trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
         thumbColor={enabled ? '#fff' : '#636366'}
         style={{ transform: [{ scaleX: 1.4 }, { scaleY: 1.4 }] }}
       />
-
     </TouchableOpacity>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -71,6 +96,11 @@ const styles = StyleSheet.create({
   info: {
     gap: 2,
   },
+  timeRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 10,
+  },
   time: {
     fontSize: 40,
     fontWeight: '700',
@@ -78,25 +108,62 @@ const styles = StyleSheet.create({
     letterSpacing: -1,
   },
   period: {
-    alignSelf: 'flex-end',
-    marginBottom: 5
+    marginBottom: 6,
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#3c3c3c',
   },
   label: {
     fontSize: 14,
     color: '#000',
-    fontWeight: 600
-  },
-  days: {
-    fontSize: 12,
     fontWeight: '600',
-    color: '#5c5c5c',
-  },
-  daysDisabled: {
-    color: '#d1d1d1',
-    fontWeight: '400'
   },
   textDisabled: {
     color: '#fff',
     fontWeight: '400',
+  },
+
+  daysRow: {
+    flexDirection: 'row',
+    gap: 4,
+    marginTop: 6,
+  },
+  dayBadge: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  dayBadgeActive: {
+    backgroundColor: '#1c1c1e',
+  },
+  dayBadgeInactive: {
+    backgroundColor: 'rgba(0,0,0,0.08)',
+  },
+  dayBadgeActiveDisabled: {
+    backgroundColor: 'rgba(255,255,255,0.18)',
+  },
+  dayBadgeInactiveDisabled: {
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+
+  dayText: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.2,
+  },
+  dayTextActive: {
+    color: '#fff',
+  },
+  dayTextInactive: {
+    color: 'rgba(0,0,0,0.3)',
+  },
+  dayTextActiveDisabled: {
+    color: 'rgba(255,255,255,0.9)',
+  },
+  dayTextInactiveDisabled: {
+    color: 'rgba(255,255,255,0.2)',
   },
 });

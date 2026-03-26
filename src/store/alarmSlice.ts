@@ -7,6 +7,7 @@ export interface Alarm {
   period: 'AM' | 'PM';
   label: string;
   days: days[];
+  options: AlarmOptions;
   enabled: boolean;
 }
 
@@ -14,6 +15,11 @@ export type days = 'Mo' | 'Tu' | 'We' | 'Th' | 'Fr' | 'Sa' | 'Su'
 
 export interface AlarmState {
   alarms: Alarm[];
+}
+
+export interface AlarmOptions {
+  vibration: boolean;
+  weather: boolean;
 }
 
 const initialState: AlarmState = {
@@ -25,6 +31,10 @@ const initialState: AlarmState = {
       label: 'Work',
       days: ['Mo', 'Tu', 'Th', 'Fr', 'Sa'],
       enabled: true,
+      options: {
+        vibration: true,
+        weather: false
+      }
     },
     {
       id: '2',
@@ -33,6 +43,10 @@ const initialState: AlarmState = {
       label: 'Day off',
       days: ['We', 'Su'],
       enabled: false,
+      options: {
+        vibration: false,
+        weather: false
+      }
     },
     {
       id: '3',
@@ -41,6 +55,10 @@ const initialState: AlarmState = {
       label: 'Gym',
       days: ['We', 'Su'],
       enabled: false,
+      options: {
+        vibration: true,
+        weather: true
+      }
     },
   ],
 }
@@ -49,8 +67,17 @@ export const alarmSlice = createSlice({
   name: 'alarm',
   initialState,
   reducers: {
-    addAlarm: (state, action: PayloadAction<Omit<Alarm, 'id'>>) => {
-      state.alarms.push({ ...action.payload, id: nanoid() })
+    addAlarm: (state, action: PayloadAction<Alarm>) => {
+      state.alarms.push(action.payload)
+    },
+    editAlarm: (state, action: PayloadAction<{ 
+      editedAlarm: Partial<Alarm>; 
+      id: string 
+    }>) => {
+      const alarm = state.alarms.find(item => item.id === action.payload.id);
+      if (!alarm) return;
+    
+      Object.assign(alarm, action.payload.editedAlarm);
     },
     deleteAlarm: (state, action: PayloadAction<{ id: string }>) => {
       const index = state.alarms.findIndex(item => item.id === action.payload.id)
@@ -63,10 +90,10 @@ export const alarmSlice = createSlice({
       if (alarm) {
         alarm.enabled = !alarm.enabled
       }
-    },
+    },    
   },
 })
 
-export const { addAlarm, deleteAlarm, enableAlarm } = alarmSlice.actions
+export const { addAlarm, deleteAlarm, enableAlarm, editAlarm } = alarmSlice.actions
 
 export default alarmSlice.reducer

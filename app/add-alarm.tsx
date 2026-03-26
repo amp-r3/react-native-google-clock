@@ -1,72 +1,143 @@
 import {
   View, Text, TouchableOpacity, StyleSheet,
-  Switch, TextInput, ScrollView
+  Switch, TextInput, ScrollView, KeyboardAvoidingView, Platform
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../src/store/store';
-import { addAlarm, days, deleteAlarm } from '../src/store/alarmSlice';
+import { Alarm, AlarmOptions, addAlarm, days, deleteAlarm, editAlarm } from '../src/store/alarmSlice';
+import { nanoid } from '@reduxjs/toolkit';
 
-const DAYS: days[] = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+const DAYS: days[] = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as const;
+const dayMap: Record<string, number> = { Mo: 0, Tu: 1, We: 2, Th: 3, Fr: 4, Sa: 5, Su: 6 };
 
 export default function AddAlarmScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const isEditing = !!id;
-  const alarm = useSelector((state: RootState) => id ? state.alarm.alarms.find(a => a.id === id) : null);
-  const dispatch = useDispatch()
-  const [selectedDays, setSelectedDays] = useState<days[]>(alarm?.days ?? DAYS);
-  const [label, setLabel] = useState(alarm?.label ?? 'New alarm');
-  const [isVibration, setIsVibration] = useState(true);
-  const [isWeather, setIsWeather] = useState(false);
+  const dispatch = useDispatch();
 
-  const toggleDay = (day) => {
-    setSelectedDays(prev =>
-      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+  const existingAlarm = useSelector((state: RootState) =>
+    id ? state.alarm.alarms.find((a) => a.id === id) : undefined
+  );
+
+  const [selectedDays, setSelectedDays] = useState<days[]>(existingAlarm?.days ?? []);
+  const [label, setLabel] = useState(existingAlarm?.label ?? 'New alarm');
+  const [alarmOptions, setAlarmOptions] = useState<AlarmOptions>({
+    vibration: existingAlarm?.options?.vibration ?? true,
+    weather: existingAlarm?.options?.weather ?? false,
+  });
+  
+  const [time, setTime] = useState(existingAlarm?.time ?? '6:00');
+  const [period, setPeriod] = useState(existingAlarm?.period ?? 'AM');
+
+  const toggleDay = (day: days) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setSelectedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
   };
-  const handleNewAlarm = () => {
-    router.back()
-    if (!isEditing) {
-      dispatch(addAlarm({
-        days: selectedDays,
-        time: '6:00',
-        enabled: true,
-        label: label,
-        period: 'AM'
-      }))
+
+  const handleOptionChange = (key: keyof AlarmOptions, value: boolean) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setAlarmOptions((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSave = () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+    if (isEditing && id) {
+      dispatch(
+        editAlarm({
+          id,
+          editedAlarm: { days: selectedDays, label, options: alarmOptions, time, period },
+        })
+      );
+    } else {
+      dispatch(
+        addAlarm({
+          id: nanoid(), 
+          days: selectedDays,
+          time,
+          period,
+          enabled: true,
+          label,
+          options: alarmOptions,
+        })
+      );
     }
-  }
-  const hadnleDeleteAlarm = () => {
-    router.back()
-    dispatch(deleteAlarm({ id }))
-  }
+    router.back();
+  };
+
+  const handleDelete = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    if (id) {
+      dispatch(deleteAlarm({ id }));
+    }
+    router.back();
+  };
+
+  const getNextAlarmDay = (): string => {
+    const now = new Date();
+    const todayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+
+    let [alarmHourStr, alarmMinuteStr] = time.split(':');
+    let alarmHour = parseInt(alarmHourStr, 10);
+    const alarmMinute = parseInt(alarmMinuteStr, 10);
+
+    if (period === "PM" && alarmHour !== 12) alarmHour += 12;
+    else if (period === "AM" && alarmHour === 12) alarmHour = 0;
+
+    const selectedDaysNum = selectedDays.map(day => dayMap[day]);
+
+    if (selectedDaysNum.length === 0) return "No alarm set";
+
+    for (let i = 0; i <= 7; i++) {
+      const checkDayIndex = (todayIndex + i) % 7;
+
+      if (!selectedDaysNum.includes(checkDayIndex)) continue;
+
+      if (i === 0) {
+        const isAlarmTodayPassed = currentHour > alarmHour || (currentHour === alarmHour && currentMinute >= alarmMinute);
+        if (!isAlarmTodayPassed) return "Today";
+        continue;
+      }
+
+      if (i === 1) return "Tomorrow";
+
+      const nextDate = new Date(now);
+      nextDate.setDate(now.getDate() + i);
+      
+      return `${nextDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}, ${nextDate.toLocaleDateString('en-US', { weekday: 'long' })}`;
+    }
+
+    return "No alarm set";
+  };
 
   return (
-    <>
-      <Stack.Screen options={{
-        title: label
-      }} />
+    <KeyboardAvoidingView 
+      style={styles.keyboardContainer} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <Stack.Screen options={{ title: label || 'New alarm' }} />
 
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Time Row */}
         <View style={styles.timeRow}>
           <View style={styles.timeLeft}>
-            {
-              isEditing ?
-                <Text style={styles.time}>
-                  {alarm?.time} <Text style={styles.ampm}>{alarm?.period}</Text>
-                </Text> :
-                <Text style={styles.time}>
-                  6:00 <Text style={styles.ampm}>AM</Text>
-                </Text>
-            }
+            <Text style={styles.time}>
+              {time} <Text style={styles.ampm}>{period}</Text>
+            </Text>
           </View>
           <TouchableOpacity style={styles.changeButton}>
             <Text style={styles.changeButtonText}>Change</Text>
@@ -95,7 +166,7 @@ export default function AddAlarmScreen() {
         <View style={styles.nextAlarmRow}>
           <View>
             <Text style={styles.nextAlarmLabel}>Next alarm</Text>
-            <Text style={styles.nextAlarmValue}>Tomorrow</Text>
+            <Text style={styles.nextAlarmValue}>{getNextAlarmDay()}</Text>
           </View>
           <TouchableOpacity style={styles.setAlarmBtn}>
             <Ionicons name="calendar-outline" size={18} color="#8E8E93" />
@@ -105,8 +176,6 @@ export default function AddAlarmScreen() {
 
         {/* Settings Group */}
         <View style={styles.settingsGroup}>
-
-          {/* Snooze */}
           <View style={styles.settingsRow}>
             <Ionicons name="bed-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
             <Text style={styles.rowLabel}>Snooze</Text>
@@ -117,23 +186,22 @@ export default function AddAlarmScreen() {
 
           <View style={styles.separator} />
 
-          {/* Alarm Name */}
           <View style={styles.settingsRow}>
             <Ionicons name="pricetag-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
             <Text style={styles.rowLabel}>Alarm name</Text>
             <TextInput
               style={styles.inlineInput}
-              placeholder={label}
+              placeholder="Enter name"
               onChangeText={setLabel}
               placeholderTextColor="#8E8E93"
               value={label}
               textAlign="right"
+              returnKeyType="done"
             />
           </View>
 
           <View style={styles.separator} />
 
-          {/* Alarm Sound */}
           <View style={styles.settingsRow}>
             <Ionicons name="notifications-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
             <Text style={styles.rowLabel}>Alarm sound</Text>
@@ -142,37 +210,34 @@ export default function AddAlarmScreen() {
 
           <View style={styles.separator} />
 
-          {/* Vibration */}
           <View style={styles.settingsRow}>
             <Ionicons name="phone-portrait-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
             <Text style={styles.rowLabel}>Vibration</Text>
             <Switch
-              value={isVibration}
-              onValueChange={setIsVibration}
+              value={alarmOptions.vibration}
+              onValueChange={(value) => handleOptionChange('vibration', value)}
               trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
-              thumbColor={isVibration ? '#fff' : '#636366'}
-              style={{ transform: [{ scaleX: 1.4 }, { scaleY: 1.4 }] }}
+              thumbColor={alarmOptions.vibration ? '#fff' : '#636366'}
+              style={styles.switchScale}
             />
           </View>
 
           <View style={styles.separator} />
 
-          {/* Weather */}
           <View style={styles.settingsRow}>
             <Ionicons name="rainy-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
             <Text style={styles.rowLabel}>Weather forecast</Text>
             <Switch
-              value={isWeather}
-              onValueChange={setIsWeather}
+              value={alarmOptions.weather}
+              onValueChange={(value) => handleOptionChange('weather', value)}
               trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
-              thumbColor={isWeather ? '#fff' : '#636366'}
-              style={{ transform: [{ scaleX: 1.4 }, { scaleY: 1.4 }] }}
+              thumbColor={alarmOptions.weather ? '#fff' : '#636366'}
+              style={styles.switchScale}
             />
           </View>
 
           <View style={styles.separator} />
 
-          {/* Apps */}
           <View style={styles.settingsRow}>
             <Ionicons name="grid-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
             <Text style={styles.rowLabel}>Apps</Text>
@@ -180,40 +245,39 @@ export default function AddAlarmScreen() {
               <Ionicons name="add" size={24} color="#8E8E93" />
             </TouchableOpacity>
           </View>
-
         </View>
 
         {/* Bottom Buttons */}
         <View style={styles.bottomRow}>
-          {
-            isEditing ?
-              <TouchableOpacity style={styles.cancelButton} onPress={hadnleDeleteAlarm}>
-                <Text style={styles.cancelButtonText}>Delete</Text>
-              </TouchableOpacity> :
-              <TouchableOpacity style={styles.cancelButton} onPress={() => { router.back() }}>
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-          }
-          {
-            isEditing ?
-              <TouchableOpacity style={styles.saveButton}>
-                <Text style={styles.saveButtonText}>Save changes</Text>
-              </TouchableOpacity> :
-              <TouchableOpacity style={styles.saveButton} onPress={handleNewAlarm}>
-                <Text style={styles.saveButtonText}>Add alarm</Text>
-              </TouchableOpacity>
-          }
+          <TouchableOpacity 
+            style={styles.cancelButton} 
+            onPress={() => {
+               if (isEditing) handleDelete();
+               else {
+                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid); 
+                 router.back();
+               }
+            }}
+          >
+            <Text style={styles.cancelButtonText}>{isEditing ? 'Delete' : 'Cancel'}</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>{isEditing ? 'Save changes' : 'Add alarm'}</Text>
+          </TouchableOpacity>
         </View>
-
       </ScrollView>
-    </>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
+  keyboardContainer: {
     flex: 1,
     backgroundColor: '#141414',
+  },
+  scroll: {
+    flex: 1,
   },
   container: {
     paddingTop: 24,
@@ -221,7 +285,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     gap: 20,
   },
-
   timeRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -253,7 +316,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
   },
-
   daysRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -277,7 +339,6 @@ const styles = StyleSheet.create({
   dayTextActive: {
     color: '#000',
   },
-
   nextAlarmRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -301,7 +362,6 @@ const styles = StyleSheet.create({
     color: '#8E8E93',
     fontSize: 14,
   },
-
   settingsGroup: {
     backgroundColor: '#1C1C1E',
     borderRadius: 14,
@@ -337,12 +397,14 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     padding: 0,
   },
+  switchScale: {
+    transform: [{ scaleX: 1.4 }, { scaleY: 1.4 }]
+  },
   separator: {
     height: StyleSheet.hairlineWidth,
     backgroundColor: '#38383A',
     marginLeft: 52,
   },
-
   bottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
