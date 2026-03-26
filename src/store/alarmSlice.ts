@@ -6,9 +6,11 @@ export interface Alarm {
   time: string;
   period: 'AM' | 'PM';
   label: string;
-  days: string[];
+  days: days[];
   enabled: boolean;
 }
+
+export type days = 'Mo' | 'Tu' | 'We' | 'Th' | 'Fr' | 'Sa' | 'Su'
 
 export interface AlarmState {
   alarms: Alarm[];
@@ -21,7 +23,7 @@ const initialState: AlarmState = {
       time: '06:00',
       period: 'AM',
       label: 'Work',
-      days: ['Mon', 'Tue', 'Thu', 'Fri', 'Sat'],
+      days: ['Mo', 'Tu', 'Th', 'Fr', 'Sa'],
       enabled: true,
     },
     {
@@ -29,7 +31,7 @@ const initialState: AlarmState = {
       time: '06:30',
       period: 'AM',
       label: 'Day off',
-      days: ['Wed', 'Sun'],
+      days: ['We', 'Su'],
       enabled: false,
     },
     {
@@ -37,7 +39,7 @@ const initialState: AlarmState = {
       time: '08:00',
       period: 'AM',
       label: 'Gym',
-      days: ['Wed', 'Sun'],
+      days: ['We', 'Su'],
       enabled: false,
     },
   ],

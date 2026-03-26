@@ -3,14 +3,22 @@ import {
   Switch, TextInput, ScrollView
 } from 'react-native';
 import { useState } from 'react';
-import { useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../src/store/store';
+import { addAlarm, days, deleteAlarm } from '../src/store/alarmSlice';
 
-const DAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+const DAYS: days[] = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
 export default function AddAlarmScreen() {
-  const router = useRouter()
-  const [selectedDays, setSelectedDays] = useState([...DAYS]);
+  const router = useRouter();
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const isEditing = !!id;
+  const alarm = useSelector((state: RootState) => id ? state.alarm.alarms.find(a => a.id === id) : null);
+  const dispatch = useDispatch()
+  const [selectedDays, setSelectedDays] = useState<days[]>(alarm?.days ?? DAYS);
+  const [label, setLabel] = useState(alarm?.label ?? 'New alarm');
   const [isVibration, setIsVibration] = useState(true);
   const [isWeather, setIsWeather] = useState(false);
 
@@ -19,144 +27,186 @@ export default function AddAlarmScreen() {
       prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
     );
   };
+  const handleNewAlarm = () => {
+    router.back()
+    if (!isEditing) {
+      dispatch(addAlarm({
+        days: selectedDays,
+        time: '6:00',
+        enabled: true,
+        label: label,
+        period: 'AM'
+      }))
+    }
+  }
+  const hadnleDeleteAlarm = () => {
+    router.back()
+    dispatch(deleteAlarm({ id }))
+  }
 
   return (
-    <ScrollView
-      style={styles.scroll}
-      contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* Time Row */}
-      <View style={styles.timeRow}>
-        <View style={styles.timeLeft}>
-          <Text style={styles.time}>
-            6:00 <Text style={styles.ampm}>AM</Text>
-          </Text>
-        </View>
-        <TouchableOpacity style={styles.changeButton}>
-          <Text style={styles.changeButtonText}>Change</Text>
-        </TouchableOpacity>
-      </View>
+    <>
+      <Stack.Screen options={{
+        title: label
+      }} />
 
-      {/* Days Row */}
-      <View style={styles.daysRow}>
-        {DAYS.map((day) => {
-          const active = selectedDays.includes(day);
-          return (
-            <TouchableOpacity
-              key={day}
-              onPress={() => toggleDay(day)}
-              style={[styles.dayChip, active && styles.dayChipActive]}
-            >
-              <Text style={[styles.dayText, active && styles.dayTextActive]}>
-                {day}
-              </Text>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Time Row */}
+        <View style={styles.timeRow}>
+          <View style={styles.timeLeft}>
+            {
+              isEditing ?
+                <Text style={styles.time}>
+                  {alarm?.time} <Text style={styles.ampm}>{alarm?.period}</Text>
+                </Text> :
+                <Text style={styles.time}>
+                  6:00 <Text style={styles.ampm}>AM</Text>
+                </Text>
+            }
+          </View>
+          <TouchableOpacity style={styles.changeButton}>
+            <Text style={styles.changeButtonText}>Change</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Days Row */}
+        <View style={styles.daysRow}>
+          {DAYS.map((day) => {
+            const active = selectedDays.includes(day);
+            return (
+              <TouchableOpacity
+                key={day}
+                onPress={() => toggleDay(day)}
+                style={[styles.dayChip, active && styles.dayChipActive]}
+              >
+                <Text style={[styles.dayText, active && styles.dayTextActive]}>
+                  {day}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {/* Next Alarm Row */}
+        <View style={styles.nextAlarmRow}>
+          <View>
+            <Text style={styles.nextAlarmLabel}>Next alarm</Text>
+            <Text style={styles.nextAlarmValue}>Tomorrow</Text>
+          </View>
+          <TouchableOpacity style={styles.setAlarmBtn}>
+            <Ionicons name="calendar-outline" size={18} color="#8E8E93" />
+            <Text style={styles.setAlarmText}>Set alarm.</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Settings Group */}
+        <View style={styles.settingsGroup}>
+
+          {/* Snooze */}
+          <View style={styles.settingsRow}>
+            <Ionicons name="bed-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
+            <Text style={styles.rowLabel}>Snooze</Text>
+            <TouchableOpacity>
+              <Ionicons name="add" size={24} color="#8E8E93" />
             </TouchableOpacity>
-          );
-        })}
-      </View>
+          </View>
 
-      {/* Next Alarm Row */}
-      <View style={styles.nextAlarmRow}>
-        <View>
-          <Text style={styles.nextAlarmLabel}>Next alarm</Text>
-          <Text style={styles.nextAlarmValue}>Tomorrow</Text>
-        </View>
-        <TouchableOpacity style={styles.setAlarmBtn}>
-          <Ionicons name="calendar-outline" size={18} color="#8E8E93" />
-          <Text style={styles.setAlarmText}>Set alarm.</Text>
-        </TouchableOpacity>
-      </View>
+          <View style={styles.separator} />
 
-      {/* Settings Group */}
-      <View style={styles.settingsGroup}>
+          {/* Alarm Name */}
+          <View style={styles.settingsRow}>
+            <Ionicons name="pricetag-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
+            <Text style={styles.rowLabel}>Alarm name</Text>
+            <TextInput
+              style={styles.inlineInput}
+              placeholder={label}
+              onChangeText={setLabel}
+              placeholderTextColor="#8E8E93"
+              value={label}
+              textAlign="right"
+            />
+          </View>
 
-        {/* Snooze */}
-        <View style={styles.settingsRow}>
-          <Ionicons name="bed-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
-          <Text style={styles.rowLabel}>Snooze</Text>
-          <TouchableOpacity>
-            <Ionicons name="add" size={24} color="#8E8E93" />
-          </TouchableOpacity>
-        </View>
+          <View style={styles.separator} />
 
-        <View style={styles.separator} />
+          {/* Alarm Sound */}
+          <View style={styles.settingsRow}>
+            <Ionicons name="notifications-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
+            <Text style={styles.rowLabel}>Alarm sound</Text>
+            <Text style={styles.rowValue}>Default (Morning{'\n'}Fresh)</Text>
+          </View>
 
-        {/* Alarm Name */}
-        <View style={styles.settingsRow}>
-          <Ionicons name="pricetag-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
-          <Text style={styles.rowLabel}>Alarm name</Text>
-          <TextInput
-            style={styles.inlineInput}
-            placeholder="Alarm"
-            placeholderTextColor="#8E8E93"
-            textAlign="right"
-          />
-        </View>
+          <View style={styles.separator} />
 
-        <View style={styles.separator} />
+          {/* Vibration */}
+          <View style={styles.settingsRow}>
+            <Ionicons name="phone-portrait-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
+            <Text style={styles.rowLabel}>Vibration</Text>
+            <Switch
+              value={isVibration}
+              onValueChange={setIsVibration}
+              trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
+              thumbColor={isVibration ? '#fff' : '#636366'}
+              style={{ transform: [{ scaleX: 1.4 }, { scaleY: 1.4 }] }}
+            />
+          </View>
 
-        {/* Alarm Sound */}
-        <View style={styles.settingsRow}>
-          <Ionicons name="notifications-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
-          <Text style={styles.rowLabel}>Alarm sound</Text>
-          <Text style={styles.rowValue}>Default (Morning{'\n'}Fresh)</Text>
-        </View>
+          <View style={styles.separator} />
 
-        <View style={styles.separator} />
+          {/* Weather */}
+          <View style={styles.settingsRow}>
+            <Ionicons name="rainy-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
+            <Text style={styles.rowLabel}>Weather forecast</Text>
+            <Switch
+              value={isWeather}
+              onValueChange={setIsWeather}
+              trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
+              thumbColor={isWeather ? '#fff' : '#636366'}
+              style={{ transform: [{ scaleX: 1.4 }, { scaleY: 1.4 }] }}
+            />
+          </View>
 
-        {/* Vibration */}
-        <View style={styles.settingsRow}>
-          <Ionicons name="phone-portrait-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
-          <Text style={styles.rowLabel}>Vibration</Text>
-          <Switch
-            value={isVibration}
-            onValueChange={setIsVibration}
-            trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
-            thumbColor={isVibration ? '#fff' : '#636366'}
-            style={{ transform: [{ scaleX: 1.4 }, { scaleY: 1.4 }] }}
-          />
-        </View>
+          <View style={styles.separator} />
 
-        <View style={styles.separator} />
+          {/* Apps */}
+          <View style={styles.settingsRow}>
+            <Ionicons name="grid-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
+            <Text style={styles.rowLabel}>Apps</Text>
+            <TouchableOpacity>
+              <Ionicons name="add" size={24} color="#8E8E93" />
+            </TouchableOpacity>
+          </View>
 
-        {/* Weather */}
-        <View style={styles.settingsRow}>
-          <Ionicons name="rainy-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
-          <Text style={styles.rowLabel}>Weather forecast</Text>
-          <Switch
-            value={isWeather}
-            onValueChange={setIsWeather}
-            trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
-            thumbColor={isWeather ? '#fff' : '#636366'}
-            style={{ transform: [{ scaleX: 1.4 }, { scaleY: 1.4 }] }}
-          />
         </View>
 
-        <View style={styles.separator} />
-
-        {/* Apps */}
-        <View style={styles.settingsRow}>
-          <Ionicons name="grid-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
-          <Text style={styles.rowLabel}>Apps</Text>
-          <TouchableOpacity>
-            <Ionicons name="add" size={24} color="#8E8E93" />
-          </TouchableOpacity>
+        {/* Bottom Buttons */}
+        <View style={styles.bottomRow}>
+          {
+            isEditing ?
+              <TouchableOpacity style={styles.cancelButton} onPress={hadnleDeleteAlarm}>
+                <Text style={styles.cancelButtonText}>Delete</Text>
+              </TouchableOpacity> :
+              <TouchableOpacity style={styles.cancelButton} onPress={() => { router.back() }}>
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+          }
+          {
+            isEditing ?
+              <TouchableOpacity style={styles.saveButton}>
+                <Text style={styles.saveButtonText}>Save changes</Text>
+              </TouchableOpacity> :
+              <TouchableOpacity style={styles.saveButton} onPress={handleNewAlarm}>
+                <Text style={styles.saveButtonText}>Add alarm</Text>
+              </TouchableOpacity>
+          }
         </View>
 
-      </View>
-
-      {/* Bottom Buttons */}
-      <View style={styles.bottomRow}>
-        <TouchableOpacity style={styles.cancelButton} onPress={() => { router.back() }}>
-          <Text style={styles.cancelButtonText}>Cancel</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.saveButton}>
-          <Text style={styles.saveButtonText}>Save</Text>
-        </TouchableOpacity>
-      </View>
-
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 }
 

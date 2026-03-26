@@ -1,7 +1,6 @@
 import { StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
 import { Alarm, enableAlarm } from "../store/alarmSlice";
 import { useDispatch } from "react-redux";
-import { useRoute } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 
 type Props = {
@@ -18,7 +17,7 @@ export default function AlarmItem({ alarm }: Props) {
 
 
   return (
-    <TouchableOpacity onPress={()=>{router.push('/add-alarm')}} style={[styles.card, !enabled && styles.cardDisabled]}>
+    <TouchableOpacity onPress={()=>{router.push({ pathname: '/add-alarm', params: { id: alarm.id } })}} style={[styles.card, !enabled && styles.cardDisabled]}>
       <View style={styles.info}>
         <Text style={[styles.label, !enabled && styles.textDisabled]}>
           {alarm.label}
