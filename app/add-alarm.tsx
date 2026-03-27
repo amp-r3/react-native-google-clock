@@ -2,126 +2,40 @@ import {
   View, Text, TouchableOpacity, StyleSheet,
   Switch, TextInput, ScrollView, KeyboardAvoidingView, Platform
 } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import { useState } from 'react';
+
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../src/store/store';
-import { AlarmOptions, addAlarm, days, deleteAlarm, editAlarm } from '../src/store/alarmSlice';
-import { nanoid } from '@reduxjs/toolkit';
+import { days } from '../src/store/alarmSlice';
+import { getNextAlarmDay } from '../src/utils/alarmUtils';
+import { useAlarmForm } from '../src/hooks/useAlarmForm';
+import { useAlarmHaptics } from '../src/hooks/useAlarmHaptics';
 
 const DAYS: days[] = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as const;
-const dayMap: Record<string, number> = { Mo: 0, Tu: 1, We: 2, Th: 3, Fr: 4, Sa: 5, Su: 6 };
 
 export default function AddAlarmScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
-  const isEditing = !!id;
-  const dispatch = useDispatch();
+  const {
+    selectedDays,
+    label,
+    setLabel,
+    time,
+    period,
+    toggleDay,
+    alarmOptions,
+    handleOptionChange,
+    handleDelete,
+    handleSave,
+    isEditing
+  } = useAlarmForm({ id, onSuccess: ()=>{router.back()} })
 
-  const existingAlarm = useSelector((state: RootState) =>
-    id ? state.alarm.alarms.find((a) => a.id === id) : undefined
-  );
+  const { onToggle, onDelete, onSave } = useAlarmHaptics()
 
-  const [selectedDays, setSelectedDays] = useState<days[]>(existingAlarm?.days ?? []);
-  const [label, setLabel] = useState(existingAlarm?.label ?? 'New alarm');
-  const [alarmOptions, setAlarmOptions] = useState<AlarmOptions>({
-    vibration: existingAlarm?.options?.vibration ?? true,
-    weather: existingAlarm?.options?.weather ?? false,
-  });
-  
-  const [time, setTime] = useState(existingAlarm?.time ?? '6:00');
-  const [period, setPeriod] = useState(existingAlarm?.period ?? 'AM');
-
-  const toggleDay = (day: days) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setSelectedDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
-  };
-
-  const handleOptionChange = (key: keyof AlarmOptions, value: boolean) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setAlarmOptions((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleSave = () => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
-    if (isEditing && id) {
-      dispatch(
-        editAlarm({
-          id,
-          editedAlarm: { days: selectedDays, label, options: alarmOptions, time, period },
-        })
-      );
-    } else {
-      dispatch(
-        addAlarm({
-          id: nanoid(), 
-          days: selectedDays,
-          time,
-          period,
-          enabled: true,
-          label,
-          options: alarmOptions,
-        })
-      );
-    }
-    router.back();
-  };
-
-  const handleDelete = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    if (id) {
-      dispatch(deleteAlarm({ id }));
-    }
-    router.back();
-  };
-
-  const getNextAlarmDay = (): string => {
-    const now = new Date();
-    const todayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
-
-    let [alarmHourStr, alarmMinuteStr] = time.split(':');
-    let alarmHour = parseInt(alarmHourStr, 10);
-    const alarmMinute = parseInt(alarmMinuteStr, 10);
-
-    if (period === "PM" && alarmHour !== 12) alarmHour += 12;
-    else if (period === "AM" && alarmHour === 12) alarmHour = 0;
-
-    const selectedDaysNum = selectedDays.map(day => dayMap[day]);
-
-    if (selectedDaysNum.length === 0) return "No alarm set";
-
-    for (let i = 0; i <= 7; i++) {
-      const checkDayIndex = (todayIndex + i) % 7;
-
-      if (!selectedDaysNum.includes(checkDayIndex)) continue;
-
-      if (i === 0) {
-        const isAlarmTodayPassed = currentHour > alarmHour || (currentHour === alarmHour && currentMinute >= alarmMinute);
-        if (!isAlarmTodayPassed) return "Today";
-        continue;
-      }
-
-      if (i === 1) return "Tomorrow";
-
-      const nextDate = new Date(now);
-      nextDate.setDate(now.getDate() + i);
-      
-      return `${nextDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}, ${nextDate.toLocaleDateString('en-US', { weekday: 'long' })}`;
-    }
-
-    return "No alarm set";
-  };
+  const nextAlarmText = getNextAlarmDay({ time, period, selectedDays })
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.keyboardContainer} 
+    <KeyboardAvoidingView
+      style={styles.keyboardContainer}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <Stack.Screen options={{ title: label || 'New alarm' }} />
@@ -151,7 +65,7 @@ export default function AddAlarmScreen() {
             return (
               <TouchableOpacity
                 key={day}
-                onPress={() => toggleDay(day)}
+                onPress={() => {onToggle();toggleDay(day)}}
                 style={[styles.dayChip, active && styles.dayChipActive]}
               >
                 <Text style={[styles.dayText, active && styles.dayTextActive]}>
@@ -166,7 +80,7 @@ export default function AddAlarmScreen() {
         <View style={styles.nextAlarmRow}>
           <View>
             <Text style={styles.nextAlarmLabel}>Next alarm</Text>
-            <Text style={styles.nextAlarmValue}>{getNextAlarmDay()}</Text>
+            <Text style={styles.nextAlarmValue}>{nextAlarmText}</Text>
           </View>
           <TouchableOpacity style={styles.setAlarmBtn}>
             <Ionicons name="calendar-outline" size={18} color="#8E8E93" />
@@ -215,7 +129,7 @@ export default function AddAlarmScreen() {
             <Text style={styles.rowLabel}>Vibration</Text>
             <Switch
               value={alarmOptions.vibration}
-              onValueChange={(value) => handleOptionChange('vibration', value)}
+              onValueChange={(value) => {onToggle();handleOptionChange('vibration', value)}}
               trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
               thumbColor={alarmOptions.vibration ? '#fff' : '#636366'}
               style={styles.switchScale}
@@ -229,7 +143,7 @@ export default function AddAlarmScreen() {
             <Text style={styles.rowLabel}>Weather forecast</Text>
             <Switch
               value={alarmOptions.weather}
-              onValueChange={(value) => handleOptionChange('weather', value)}
+              onValueChange={(value) => {onToggle();handleOptionChange('weather', value)}}
               trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
               thumbColor={alarmOptions.weather ? '#fff' : '#636366'}
               style={styles.switchScale}
@@ -249,20 +163,23 @@ export default function AddAlarmScreen() {
 
         {/* Bottom Buttons */}
         <View style={styles.bottomRow}>
-          <TouchableOpacity 
-            style={styles.cancelButton} 
+          <TouchableOpacity
+            style={styles.cancelButton}
             onPress={() => {
-               if (isEditing) handleDelete();
-               else {
-                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid); 
-                 router.back();
-               }
+              if (isEditing){
+                onDelete()
+                handleDelete();
+              } 
+              else {
+                onToggle();
+                router.back();
+              }
             }}
           >
             <Text style={styles.cancelButtonText}>{isEditing ? 'Delete' : 'Cancel'}</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+
+          <TouchableOpacity style={styles.saveButton} onPress={()=>{onSave(); handleSave()}}>
             <Text style={styles.saveButtonText}>{isEditing ? 'Save changes' : 'Add alarm'}</Text>
           </TouchableOpacity>
         </View>
