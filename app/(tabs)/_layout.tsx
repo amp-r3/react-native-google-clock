@@ -12,13 +12,15 @@ import {
 } from "react-native";
 import { useRef, useEffect } from "react";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { router } from "expo-router";
+import { TabActions } from "@react-navigation/native";
 
 type IconName = React.ComponentProps<typeof Ionicons>["name"];
 
 const TABS = [
-  { name: "alarm",     title: "Alarms",    icon: "alarm-outline"     },
-  { name: "clock",     title: "Clocks",    icon: "time-outline"      },
-  { name: "timer",     title: "Timer",     icon: "hourglass-outline" },
+  { name: "alarm", title: "Alarms", icon: "alarm-outline" },
+  { name: "clock", title: "Clocks", icon: "time-outline" },
+  { name: "timer", title: "Timer", icon: "hourglass-outline" },
   { name: "stopwatch", title: "Stopwatch", icon: "stopwatch-outline" },
 ] as const;
 
@@ -73,13 +75,17 @@ function AnimatedTabBar({ state, navigation }: BottomTabBarProps) {
 
   const handlePress = (index: number) => {
     const route = state.routes[index];
+    const isFocused = state.index === index;
 
-    navigation.emit({
+    const event = navigation.emit({
       type: "tabPress",
       target: route.key,
       canPreventDefault: true,
     });
-    navigation.navigate(route.name);
+
+    if (!isFocused && !event.defaultPrevented) {
+      navigation.dispatch(TabActions.jumpTo(route.name));
+    }
   };
 
   return (
@@ -89,10 +95,12 @@ function AnimatedTabBar({ state, navigation }: BottomTabBarProps) {
         { paddingBottom: insets.bottom + 8 }
       ]}
     >
-      <Animated.View style={[styles.pill, { left: pillX, width: pillWidth }]} />
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.pill, { left: pillX, width: pillWidth }]}
+      />
 
       {TABS.map((tab, index) => {
-        const isActive = state.index === index;
 
         return (
           <TouchableOpacity
@@ -131,7 +139,7 @@ const styles = StyleSheet.create({
   },
   tab: {
     flex: 1,
-    height: 50, 
+    height: 50,
     alignItems: "center",
     justifyContent: "center",
     gap: 3,
@@ -149,13 +157,6 @@ export default function TabsLayout() {
       tabBar={(props) => <AnimatedTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        transitionSpec: {
-          animation: "timing",
-          config: {
-            duration: 150,
-            easing: Easing.inOut(Easing.ease),
-          },
-        },
       }}
     >
       {TABS.map((tab) => (

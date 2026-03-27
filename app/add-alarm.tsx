@@ -8,7 +8,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../src/store/store';
-import { Alarm, AlarmOptions, addAlarm, days, deleteAlarm, editAlarm } from '../src/store/alarmSlice';
+import { AlarmOptions, addAlarm, days, deleteAlarm, editAlarm } from '../src/store/alarmSlice';
 import { nanoid } from '@reduxjs/toolkit';
 
 const DAYS: days[] = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as const;
