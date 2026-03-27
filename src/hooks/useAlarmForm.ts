@@ -3,6 +3,7 @@ import { useExistingAlarm } from "./useExistingAlarm";
 import { AlarmOptions, addAlarm, days, deleteAlarm, editAlarm } from "../store/alarmSlice";
 import { useDispatch } from "react-redux";
 import { nanoid } from "@reduxjs/toolkit";
+import { Platform } from "react-native";
 
 interface UseAlarmFormParams {
   id?: string;
@@ -22,6 +23,8 @@ export function useAlarmForm({ id, onSuccess }: UseAlarmFormParams) {
     vibration: existingAlarm?.options?.vibration ?? true,
     weather: existingAlarm?.options?.weather ?? false,
   });
+  const [showTimePicker, setShowTimePicker] = useState(false)
+  const date = new Date();
 
   const toggleDay = (day: days) => {
     setSelectedDays((prev) =>
@@ -50,9 +53,28 @@ export function useAlarmForm({ id, onSuccess }: UseAlarmFormParams) {
     onSuccess();
   };
 
+  const onChange = (_, selectedDate) => {
+    if (Platform.OS === 'android') setShowTimePicker(false);
+
+    if (selectedDate) {
+      const hours24 = selectedDate.getHours();
+      const minutes = selectedDate.getMinutes();
+
+      const currentPeriod = hours24 >= 12 ? 'PM' : 'AM';
+
+      const hours12 = hours24 % 12 || 12;
+
+      const displayMinutes = minutes < 10 ? `0${minutes}` : minutes;
+
+      setTime(`${hours12}:${displayMinutes}`);
+      setPeriod(currentPeriod);
+    }
+  };
+
   return {
-    isEditing, selectedDays, label, time, period, alarmOptions,
-    setLabel, setTime, setPeriod,
-    toggleDay, handleOptionChange, handleSave, handleDelete,
+    isEditing, selectedDays, label, time, period, date, alarmOptions, showTimePicker,
+    setLabel, setTime, setPeriod, setShowTimePicker,
+    toggleDay, handleOptionChange, handleSave, handleDelete, onChange
+
   };
 }

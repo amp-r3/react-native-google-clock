@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import { useRef, useEffect } from "react";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { router } from "expo-router";
 import { TabActions } from "@react-navigation/native";
 
 type IconName = React.ComponentProps<typeof Ionicons>["name"];

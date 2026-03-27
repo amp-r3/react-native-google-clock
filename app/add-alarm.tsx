@@ -9,6 +9,7 @@ import { days } from '../src/store/alarmSlice';
 import { getNextAlarmDay } from '../src/utils/alarmUtils';
 import { useAlarmForm } from '../src/hooks/useAlarmForm';
 import { useAlarmHaptics } from '../src/hooks/useAlarmHaptics';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const DAYS: days[] = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as const;
 
@@ -20,18 +21,23 @@ export default function AddAlarmScreen() {
     label,
     setLabel,
     time,
+    date,
+    showTimePicker,
     period,
     toggleDay,
     alarmOptions,
+    setShowTimePicker,
     handleOptionChange,
     handleDelete,
     handleSave,
+    onChange,
     isEditing
-  } = useAlarmForm({ id, onSuccess: ()=>{router.back()} })
+  } = useAlarmForm({ id, onSuccess: () => { router.back() } })
 
   const { onToggle, onDelete, onSave } = useAlarmHaptics()
 
   const nextAlarmText = getNextAlarmDay({ time, period, selectedDays })
+
 
   return (
     <KeyboardAvoidingView
@@ -53,10 +59,23 @@ export default function AddAlarmScreen() {
               {time} <Text style={styles.ampm}>{period}</Text>
             </Text>
           </View>
-          <TouchableOpacity style={styles.changeButton}>
+          <TouchableOpacity style={styles.changeButton} onPress={()=>{setShowTimePicker(true)}}>
             <Text style={styles.changeButtonText}>Change</Text>
           </TouchableOpacity>
         </View>
+
+        {
+          showTimePicker && (
+            <DateTimePicker
+              value={date}
+              mode="time"
+              is24Hour={false}
+              display="default"
+              onChange={onChange}
+            />
+          )
+        }
+
 
         {/* Days Row */}
         <View style={styles.daysRow}>
@@ -65,7 +84,7 @@ export default function AddAlarmScreen() {
             return (
               <TouchableOpacity
                 key={day}
-                onPress={() => {onToggle();toggleDay(day)}}
+                onPress={() => { onToggle(); toggleDay(day) }}
                 style={[styles.dayChip, active && styles.dayChipActive]}
               >
                 <Text style={[styles.dayText, active && styles.dayTextActive]}>
@@ -129,7 +148,7 @@ export default function AddAlarmScreen() {
             <Text style={styles.rowLabel}>Vibration</Text>
             <Switch
               value={alarmOptions.vibration}
-              onValueChange={(value) => {onToggle();handleOptionChange('vibration', value)}}
+              onValueChange={(value) => { onToggle(); handleOptionChange('vibration', value) }}
               trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
               thumbColor={alarmOptions.vibration ? '#fff' : '#636366'}
               style={styles.switchScale}
@@ -143,7 +162,7 @@ export default function AddAlarmScreen() {
             <Text style={styles.rowLabel}>Weather forecast</Text>
             <Switch
               value={alarmOptions.weather}
-              onValueChange={(value) => {onToggle();handleOptionChange('weather', value)}}
+              onValueChange={(value) => { onToggle(); handleOptionChange('weather', value) }}
               trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
               thumbColor={alarmOptions.weather ? '#fff' : '#636366'}
               style={styles.switchScale}
@@ -166,10 +185,10 @@ export default function AddAlarmScreen() {
           <TouchableOpacity
             style={styles.cancelButton}
             onPress={() => {
-              if (isEditing){
+              if (isEditing) {
                 onDelete()
                 handleDelete();
-              } 
+              }
               else {
                 onToggle();
                 router.back();
@@ -179,7 +198,7 @@ export default function AddAlarmScreen() {
             <Text style={styles.cancelButtonText}>{isEditing ? 'Delete' : 'Cancel'}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.saveButton} onPress={()=>{onSave(); handleSave()}}>
+          <TouchableOpacity style={styles.saveButton} onPress={() => { onSave(); handleSave() }}>
             <Text style={styles.saveButtonText}>{isEditing ? 'Save changes' : 'Add alarm'}</Text>
           </TouchableOpacity>
         </View>

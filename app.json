@@ -1,12 +1,35 @@
 {
   "expo": {
+    "name": "Clock",
+    "slug": "clock",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "bundleIdentifier": "com.ampr3.myapp",
+      "buildNumber": "1",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "com.ampr3.myapp",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": [],
+      "predictiveBackGestureEnabled": true
+    },
+    "plugins": [
+      "@react-native-community/datetimepicker"
+    ],
     "extra": {
       "eas": {
         "projectId": "a89fc711-da71-42c2-ad83-c72e58a2c672"
       }
-    },
-    "android": {
-      "package": "com.ampr3.myapp"
     }
   }
 }
