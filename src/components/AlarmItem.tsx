@@ -1,5 +1,5 @@
 import { StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
-import { Alarm, days, enableAlarm } from "../store/alarmSlice";
+import { Alarm, days, enableAlarm } from "../hooks/alarmSlice";
 import { useDispatch } from "react-redux";
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';

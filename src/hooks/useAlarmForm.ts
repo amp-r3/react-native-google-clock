@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useExistingAlarm } from "./useExistingAlarm";
-import { AlarmOptions, addAlarm, days, deleteAlarm, editAlarm } from "../store/alarmSlice";
+import { AlarmOptions, addAlarm, days, deleteAlarm, editAlarm } from "./alarmSlice";
 import { useDispatch } from "react-redux";
 import { nanoid } from "@reduxjs/toolkit";
 import { Platform } from "react-native";

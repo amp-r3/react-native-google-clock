@@ -1,4 +1,4 @@
-import { days } from "../store/alarmSlice";
+import { days } from "../hooks/alarmSlice";
 
 interface GetNextAlarmDayProps {
   time?: string;

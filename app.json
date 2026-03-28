@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Clock",
-    "slug": "clock",
+    "slug": "my-app",
     "version": "0.0.1",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",

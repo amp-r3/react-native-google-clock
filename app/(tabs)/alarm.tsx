@@ -31,7 +31,7 @@ export default function AlarmScreen() {
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={{ height: 4 }} />}
-        />
+      />
 
       <TouchableOpacity
         style={[styles.fab, { bottom: insets.bottom }]}

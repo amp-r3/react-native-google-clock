@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
-import alarmSlice from './alarmSlice'
+import alarmSlice from '../hooks/alarmSlice'
 
 export const store = configureStore({
   reducer: {

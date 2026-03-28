@@ -26,6 +26,14 @@ export default function RootLayout() {
             headerTintColor: '#fff',
           }}
         />
+        <Stack.Screen
+          name="alarmScreen"
+          options={{
+            presentation: 'modal',
+            headerShown: false,
+            statusBarHidden: true
+          }}
+        />
       </Stack>
     </Provider>
   );

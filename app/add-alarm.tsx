@@ -5,7 +5,7 @@ import {
 
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { days } from '../src/store/alarmSlice';
+import { days } from '../src/hooks/alarmSlice';
 import { getNextAlarmDay } from '../src/utils/alarmUtils';
 import { useAlarmForm } from '../src/hooks/useAlarmForm';
 import { useAlarmHaptics } from '../src/hooks/useAlarmHaptics';
@@ -54,12 +54,12 @@ export default function AddAlarmScreen() {
       >
         {/* Time Row */}
         <View style={styles.timeRow}>
-          <View style={styles.timeLeft}>
+          <TouchableOpacity style={styles.timeLeft} onPress={() => { setShowTimePicker(true) }}>
             <Text style={styles.time}>
               {time} <Text style={styles.ampm}>{period}</Text>
             </Text>
-          </View>
-          <TouchableOpacity style={styles.changeButton} onPress={()=>{setShowTimePicker(true)}}>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.changeButton} onPress={() => { setShowTimePicker(true) }}>
             <Text style={styles.changeButtonText}>Change</Text>
           </TouchableOpacity>
         </View>
@@ -178,6 +178,18 @@ export default function AddAlarmScreen() {
               <Ionicons name="add" size={24} color="#8E8E93" />
             </TouchableOpacity>
           </View>
+
+          <View style={styles.separator} />
+
+          {/* Test Alarm Row */}
+          <TouchableOpacity
+            style={styles.settingsRow}
+            onPress={() => router.push({ pathname: '/alarmScreen', params: { id } })}
+          >
+            <Ionicons name="play-circle-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
+            <Text style={styles.rowLabel}>Test alarm</Text>
+            <Ionicons name="chevron-forward" size={16} color="#8E8E93" />
+          </TouchableOpacity>
         </View>
 
         {/* Bottom Buttons */}
