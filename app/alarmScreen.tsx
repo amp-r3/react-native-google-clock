@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Alarm } from "../src/hooks/alarmSlice";
+import { Alarm } from "../src/store/alarmSlice";
 import { useExistingAlarm } from "../src/hooks/useExistingAlarm";
 
 export default function AlarmScreen() {
@@ -21,6 +21,7 @@ export default function AlarmScreen() {
     label: 'Work',
     days: ['Mo', 'Tu', 'Th', 'Fr', 'Sa'],
     enabled: true,
+    date: null,
     options: {
       vibration: true,
       weather: false

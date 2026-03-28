@@ -5,7 +5,7 @@ import {
 
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { days } from '../src/hooks/alarmSlice';
+import { days } from '../src/store/alarmSlice';
 import { getNextAlarmDay } from '../src/utils/alarmUtils';
 import { useAlarmForm } from '../src/hooks/useAlarmForm';
 import { useAlarmHaptics } from '../src/hooks/useAlarmHaptics';
@@ -16,27 +16,31 @@ const DAYS: days[] = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as const;
 export default function AddAlarmScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
+  const now = new Date();
   const {
     selectedDays,
     label,
     setLabel,
     time,
-    date,
     showTimePicker,
+    showDatePicker,
     period,
+    date,
     toggleDay,
     alarmOptions,
     setShowTimePicker,
+    setShowDatePicker,
     handleOptionChange,
     handleDelete,
     handleSave,
-    onChange,
-    isEditing
+    onChangeTime,
+    onChangeDate,
+    isEditing,
   } = useAlarmForm({ id, onSuccess: () => { router.back() } })
 
   const { onToggle, onDelete, onSave } = useAlarmHaptics()
 
-  const nextAlarmText = getNextAlarmDay({ time, period, selectedDays })
+  const { dateLabel } = getNextAlarmDay({ time, period, selectedDays, date: date ? new Date(date) : null })
 
 
   return (
@@ -54,12 +58,12 @@ export default function AddAlarmScreen() {
       >
         {/* Time Row */}
         <View style={styles.timeRow}>
-          <TouchableOpacity style={styles.timeLeft} onPress={() => { setShowTimePicker(true) }}>
+          <TouchableOpacity style={styles.timeLeft} onPress={() => { onToggle(); setShowTimePicker(true) }}>
             <Text style={styles.time}>
               {time} <Text style={styles.ampm}>{period}</Text>
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.changeButton} onPress={() => { setShowTimePicker(true) }}>
+          <TouchableOpacity style={styles.changeButton} onPress={() => { onToggle(); setShowTimePicker(true) }}>
             <Text style={styles.changeButtonText}>Change</Text>
           </TouchableOpacity>
         </View>
@@ -67,11 +71,11 @@ export default function AddAlarmScreen() {
         {
           showTimePicker && (
             <DateTimePicker
-              value={date}
+              value={now}
               mode="time"
               is24Hour={false}
               display="default"
-              onChange={onChange}
+              onChange={onChangeTime}
             />
           )
         }
@@ -99,13 +103,24 @@ export default function AddAlarmScreen() {
         <View style={styles.nextAlarmRow}>
           <View>
             <Text style={styles.nextAlarmLabel}>Next alarm</Text>
-            <Text style={styles.nextAlarmValue}>{nextAlarmText}</Text>
+            <Text style={styles.nextAlarmValue}>{dateLabel}</Text>
           </View>
-          <TouchableOpacity style={styles.setAlarmBtn}>
+          <TouchableOpacity style={styles.setAlarmBtn} onPress={() => { onToggle(); setShowDatePicker(true) }} >
             <Ionicons name="calendar-outline" size={18} color="#8E8E93" />
             <Text style={styles.setAlarmText}>Set alarm.</Text>
           </TouchableOpacity>
         </View>
+
+        {
+          showDatePicker && (
+            <DateTimePicker
+              value={date ? new Date(date) : now}
+              mode="date"
+              display="default"
+              onChange={onChangeDate}
+            />
+          )
+        }
 
         {/* Settings Group */}
         <View style={styles.settingsGroup}>
@@ -184,7 +199,7 @@ export default function AddAlarmScreen() {
           {/* Test Alarm Row */}
           <TouchableOpacity
             style={styles.settingsRow}
-            onPress={() => router.push({ pathname: '/alarmScreen', params: { id } })}
+            onPress={() => {onToggle(); router.push({ pathname: '/alarmScreen', params: { id } })}}
           >
             <Ionicons name="play-circle-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
             <Text style={styles.rowLabel}>Test alarm</Text>
@@ -200,6 +215,7 @@ export default function AddAlarmScreen() {
               if (isEditing) {
                 onDelete()
                 handleDelete();
+                
               }
               else {
                 onToggle();

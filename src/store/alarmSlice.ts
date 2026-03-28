@@ -1,5 +1,6 @@
-import { createSlice, nanoid } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
+import { getNextAlarmDay } from '../utils/alarmUtils';
 
 export interface Alarm {
   id: string;
@@ -9,6 +10,7 @@ export interface Alarm {
   days: days[];
   options: AlarmOptions;
   enabled: boolean;
+  date: string;
 }
 
 export type days = 'Mo' | 'Tu' | 'We' | 'Th' | 'Fr' | 'Sa' | 'Su'
@@ -23,52 +25,21 @@ export interface AlarmOptions {
 }
 
 const initialState: AlarmState = {
-  alarms: [
-    {
-      id: '1',
-      time: '06:00',
-      period: 'AM',
-      label: 'Work',
-      days: ['Mo', 'Tu', 'Th', 'Fr', 'Sa'],
-      enabled: true,
-      options: {
-        vibration: true,
-        weather: false
-      }
-    },
-    {
-      id: '2',
-      time: '06:30',
-      period: 'AM',
-      label: 'Day off',
-      days: ['We', 'Su'],
-      enabled: false,
-      options: {
-        vibration: false,
-        weather: false
-      }
-    },
-    {
-      id: '3',
-      time: '08:00',
-      period: 'AM',
-      label: 'Gym',
-      days: ['We', 'Su'],
-      enabled: false,
-      options: {
-        vibration: true,
-        weather: true
-      }
-    },
-  ],
+  alarms: [],
 }
 
 export const alarmSlice = createSlice({
   name: 'alarm',
   initialState,
   reducers: {
-    addAlarm: (state, action: PayloadAction<Alarm>) => {
-      state.alarms.push(action.payload)
+    addAlarm: (state, action: PayloadAction<Alarm & { isoDate?: string; updatedSelectedDays?: days[] }>) => {
+      const { isoDate, updatedSelectedDays, ...payload } = action.payload;
+    
+      state.alarms.push({
+        ...payload,
+        date: isoDate ?? undefined,
+        days: updatedSelectedDays ?? payload.days,
+      });
     },
     editAlarm: (state, action: PayloadAction<{ 
       editedAlarm: Partial<Alarm>; 

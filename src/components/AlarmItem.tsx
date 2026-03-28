@@ -1,5 +1,5 @@
 import { StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
-import { Alarm, days, enableAlarm } from "../hooks/alarmSlice";
+import { Alarm, days, enableAlarm } from "../store/alarmSlice";
 import { useDispatch } from "react-redux";
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -14,7 +14,9 @@ export default function AlarmItem({ alarm }: Props) {
   const enabled = alarm.enabled
   const dispatch = useDispatch()
   const setEnabled = () => {
-    dispatch(enableAlarm({ id: alarm.id }))
+    if(alarm.date || alarm.days.length > 0){
+      dispatch(enableAlarm({ id: alarm.id }))
+    }
   }
   const router = useRouter()
 

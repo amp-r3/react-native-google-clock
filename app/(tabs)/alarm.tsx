@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AlarmItem from '../../src/components/AlarmItem';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../src/store/store';
+import { AlarmEmpty } from '../../src/components/AlarmEmpty';
 
 export default function AlarmScreen() {
   const alarms = useSelector((state: RootState) => state.alarm.alarms)
@@ -24,6 +25,9 @@ export default function AlarmScreen() {
         </TouchableOpacity>
       </View>
 
+      {
+      alarms.length < 1 ? 
+      <AlarmEmpty/> :
       <FlatList
         data={alarms}
         keyExtractor={(item) => item.id}
@@ -32,6 +36,8 @@ export default function AlarmScreen() {
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={{ height: 4 }} />}
       />
+      }
+
 
       <TouchableOpacity
         style={[styles.fab, { bottom: insets.bottom }]}
