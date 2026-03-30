@@ -6,7 +6,7 @@ import { nanoid } from "@reduxjs/toolkit";
 import { Platform } from "react-native";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import type { ComponentProps } from 'react';
-import { getNextAlarmDay, getTimeUntilAlarm } from "../utils/alarmUtils";
+import { getIsScheduled, getNextAlarmDay, getTimeUntilAlarm } from "../utils/alarmUtils";
 import Toast from 'react-native-toast-message';
 
 type OnChange = NonNullable<ComponentProps<typeof DateTimePicker>['onChange']>;
@@ -63,6 +63,7 @@ export function useAlarmForm({ id, onSuccess }: UseAlarmFormParams) {
   const [time, setTime] = useState(initial.time);
   const [period, setPeriod] = useState<'AM' | 'PM'>(initial.period);
   const [date, setDate] = useState<string | undefined>(initial.date);
+  const [isScheduled, setIsScheduled] = useState<boolean>(false)
   const [alarmOptions, setAlarmOptions] = useState<AlarmOptions>({
     vibration: true,
     weather: false,
@@ -75,8 +76,9 @@ export function useAlarmForm({ id, onSuccess }: UseAlarmFormParams) {
 
     setSelectedDays(existingAlarm.days ?? []);
     setLabel(existingAlarm.label ?? 'Alarm');
-    setTime(existingAlarm.time ?? initial.time);
     setPeriod(existingAlarm.period ?? initial.period);
+    setTime(existingAlarm.time ?? initial.time);
+    setIsScheduled(getIsScheduled(new Date(existingAlarm.date)))
     setAlarmOptions({
       vibration: existingAlarm.options?.vibration ?? true,
       weather: existingAlarm.options?.weather ?? false,
@@ -108,6 +110,7 @@ export function useAlarmForm({ id, onSuccess }: UseAlarmFormParams) {
         validDate.setDate(validDate.getDate() + 1);
       }
     }
+    setIsScheduled(true)
     setDate(validDate.toISOString());
     setSelectedDays([]);
   };
@@ -151,6 +154,11 @@ export function useAlarmForm({ id, onSuccess }: UseAlarmFormParams) {
     });
   };
 
+  const handleRemoveScheduled = () => {
+    setIsScheduled(false)
+    setDate(getDefaultDate(time, period));
+  }
+
   const handleSave = () => {
     const result = getNextAlarmDay({
       time,
@@ -164,7 +172,7 @@ export function useAlarmForm({ id, onSuccess }: UseAlarmFormParams) {
 
     if (finalDate) {
       Toast.show({
-        type: 'success',
+        type: 'info',
         text1: getTimeUntilAlarm(finalDate),
         position: 'bottom',
         visibilityTime: 2500,
@@ -211,6 +219,18 @@ export function useAlarmForm({ id, onSuccess }: UseAlarmFormParams) {
   const handleDelete = () => {
     if (id) {
       dispatch(deleteAlarm({ id }));
+      Toast.show({
+        type: 'info',
+        text1: "The alarm has been removed.",
+        position: 'bottom',
+        visibilityTime: 2500,
+        props: {
+          onUndo: () => {
+            Toast.hide()
+            dispatch(addAlarm(existingAlarm));
+          },
+        },
+      });
       onSuccess?.();
     }
   };
@@ -222,17 +242,20 @@ export function useAlarmForm({ id, onSuccess }: UseAlarmFormParams) {
     time,
     period,
     date,
+    isScheduled,
     enabled: existingAlarm?.enabled ?? true,
     alarmOptions,
     showTimePicker,
     showDatePicker,
     setLabel,
+    setDate,
     setShowTimePicker,
     setShowDatePicker,
     toggleDay,
     handleOptionChange,
     handleSave,
     handleDelete,
+    handleRemoveScheduled,
     onChangeTime,
     onChangeDate,
   };

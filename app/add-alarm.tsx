@@ -10,6 +10,7 @@ import { getNextAlarmDay, getTimeAsDate } from '../src/utils/alarmUtils';
 import { useAlarmForm } from '../src/hooks/useAlarmForm';
 import { useAlarmHaptics } from '../src/hooks/useAlarmHaptics';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import Toast from 'react-native-toast-message';
 
 const DAYS: days[] = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as const;
 
@@ -24,15 +25,18 @@ export default function AddAlarmScreen() {
     showDatePicker,
     period,
     date,
+    isScheduled,
     enabled,
     toggleDay,
     alarmOptions,
+    setDate,
     setLabel,
     setShowTimePicker,
     setShowDatePicker,
     handleOptionChange,
     handleDelete,
     handleSave,
+    handleRemoveScheduled,
     onChangeTime,
     onChangeDate,
     isEditing,
@@ -41,6 +45,20 @@ export default function AddAlarmScreen() {
   const { onToggle, onDelete, onSave } = useAlarmHaptics()
 
   const { dateLabel } = getNextAlarmDay({ time, period, selectedDays, date: date ? new Date(date) : null })
+
+  const onTestHandle = () => {
+    if (isEditing) {
+      onToggle(); 
+      router.push({ pathname: '/alarmScreen', params: { id } });
+    } else {
+      Toast.show({
+        type: 'info',
+        text1: 'Save the alarm first to test it.',
+        position: 'bottom',
+        visibilityTime: 2500,
+      });
+    }
+  }
 
 
   return (
@@ -110,10 +128,26 @@ export default function AddAlarmScreen() {
                 <Text style={styles.nextAlarmLabel}>The alarm clock is off</Text>
             }
           </View>
-          <TouchableOpacity style={styles.setAlarmBtn} onPress={() => { onToggle(); setShowDatePicker(true) }} >
-            <Ionicons name="calendar-outline" size={18} color="#8E8E93" />
-            <Text style={styles.setAlarmText}>Set alarm.</Text>
-          </TouchableOpacity>
+
+          {isScheduled ? (
+            <TouchableOpacity
+              style={styles.setAlarmBtn}
+              onPress={handleRemoveScheduled}
+            >
+              <Ionicons name="trash-outline" size={18} color="#8E8E93" />
+              <Text style={[styles.setAlarmText]}>
+                unset alarm
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={styles.setAlarmBtn}
+              onPress={() => { onToggle(); setShowDatePicker(true) }}
+            >
+              <Ionicons name="calendar-outline" size={18} color="#8E8E93" />
+              <Text style={styles.setAlarmText}>Set alarm.</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {
@@ -204,7 +238,7 @@ export default function AddAlarmScreen() {
           {/* Test Alarm Row */}
           <TouchableOpacity
             style={styles.settingsRow}
-            onPress={() => { onToggle(); router.push({ pathname: '/alarmScreen', params: { id } }) }}
+            onPress={onTestHandle}
           >
             <Ionicons name="play-circle-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
             <Text style={styles.rowLabel}>Test alarm</Text>

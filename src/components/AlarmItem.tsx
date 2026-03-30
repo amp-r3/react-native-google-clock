@@ -4,8 +4,7 @@ import { useDispatch } from "react-redux";
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Toast from 'react-native-toast-message';
-import { getTimeUntilAlarm } from '../utils/alarmUtils';
-import { useAlarmForm } from '../hooks/useAlarmForm';
+import { getIsScheduled, getTimeUntilAlarm } from '../utils/alarmUtils';
 
 type Props = {
   alarm: Alarm;
@@ -16,12 +15,17 @@ const DAYS: days[] = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 export default function AlarmItem({ alarm }: Props) {
   const enabled = alarm.enabled
   const dispatch = useDispatch()
+  const isScheduled = getIsScheduled(new Date(alarm.date)) && alarm.days.length < 1;
+  const scheduledText = new Date(alarm.date).toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'long',
+  })
   const setEnabled = () => {
     if (alarm.date || alarm.days.length > 0) {
       dispatch(enableAlarm({ id: alarm.id }))
       if (!enabled) {
         Toast.show({
-          type: 'success',
+          type: 'info',
           text1: getTimeUntilAlarm(alarm.date),
           position: 'bottom',
           visibilityTime: 2500,
@@ -55,31 +59,35 @@ export default function AlarmItem({ alarm }: Props) {
           </Text>
         </View>
 
-        <View style={styles.daysRow}>
-          {DAYS.map(day => {
-            const isActive = alarm.days.includes(day);
-            return (
-              <View
-                key={day}
-                style={[
-                  styles.dayBadge,
-                  isActive && (enabled ? styles.dayBadgeActive : styles.dayBadgeActiveDisabled),
-                  !isActive && (enabled ? styles.dayBadgeInactive : styles.dayBadgeInactiveDisabled),
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.dayText,
-                    isActive && (enabled ? styles.dayTextActive : styles.dayTextActiveDisabled),
-                    !isActive && (enabled ? styles.dayTextInactive : styles.dayTextInactiveDisabled),
-                  ]}
-                >
-                  {day}
-                </Text>
-              </View>
-            );
-          })}
-        </View>
+        {
+          isScheduled ?
+            <Text>{`Scheduled for ${scheduledText}`}</Text> :
+            <View style={styles.daysRow}>
+              {DAYS.map(day => {
+                const isActive = alarm.days.includes(day);
+                return (
+                  <View
+                    key={day}
+                    style={[
+                      styles.dayBadge,
+                      isActive && (enabled ? styles.dayBadgeActive : styles.dayBadgeActiveDisabled),
+                      !isActive && (enabled ? styles.dayBadgeInactive : styles.dayBadgeInactiveDisabled),
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.dayText,
+                        isActive && (enabled ? styles.dayTextActive : styles.dayTextActiveDisabled),
+                        !isActive && (enabled ? styles.dayTextInactive : styles.dayTextInactiveDisabled),
+                      ]}
+                    >
+                      {day}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+        }
       </View>
 
       <Switch

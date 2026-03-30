@@ -140,3 +140,15 @@ export function getTimeAsDate (time: string, period: 'AM' | 'PM'): Date {
   d.setHours(hours24, minutes, 0, 0);
   return d;
 };
+
+export function getIsScheduled(date: Date): boolean {
+  const now = new Date();
+
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+  return target > tomorrow;
+}
