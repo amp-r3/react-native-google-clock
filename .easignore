@@ -1,0 +1,17 @@
+# Игнорировать локальные файлы сборки
+node_modules/
+.expo/
+dist/
+npm-debug.log
+yarn-error.log
+
+# Игнорировать файлы окружения (рекомендуется)
+.env
+.env*.local
+
+# Игнорировать IDE настройки
+.vscode/
+.idea/
+
+# Включить файл, если он не в git, но нужен (пример)
+# !some-generated-file.json

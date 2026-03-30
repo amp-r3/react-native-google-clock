@@ -4,6 +4,8 @@ import { Provider } from 'react-redux';
 import { store } from "../src/store/store";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
+import Toast from 'react-native-toast-message';
+import { toastConfig } from "../src/components/ToastConfig";
 
 export default function RootLayout() { 
   const colorScheme = useColorScheme();
@@ -35,6 +37,7 @@ export default function RootLayout() {
           }}
         />
       </Stack>
+      <Toast config={toastConfig} bottomOffset={120} />
     </Provider>
   );
 }

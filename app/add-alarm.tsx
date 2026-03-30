@@ -6,7 +6,7 @@ import {
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { days } from '../src/store/alarmSlice';
-import { getNextAlarmDay } from '../src/utils/alarmUtils';
+import { getNextAlarmDay, getTimeAsDate } from '../src/utils/alarmUtils';
 import { useAlarmForm } from '../src/hooks/useAlarmForm';
 import { useAlarmHaptics } from '../src/hooks/useAlarmHaptics';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -16,18 +16,18 @@ const DAYS: days[] = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as const;
 export default function AddAlarmScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
-  const now = new Date();
   const {
     selectedDays,
     label,
-    setLabel,
     time,
     showTimePicker,
     showDatePicker,
     period,
     date,
+    enabled,
     toggleDay,
     alarmOptions,
+    setLabel,
     setShowTimePicker,
     setShowDatePicker,
     handleOptionChange,
@@ -68,17 +68,15 @@ export default function AddAlarmScreen() {
           </TouchableOpacity>
         </View>
 
-        {
-          showTimePicker && (
-            <DateTimePicker
-              value={now}
-              mode="time"
-              is24Hour={false}
-              display="default"
-              onChange={onChangeTime}
-            />
-          )
-        }
+        {showTimePicker && (
+          <DateTimePicker
+            value={getTimeAsDate(time, period)}
+            mode="time"
+            is24Hour={false}
+            display="default"
+            onChange={onChangeTime}
+          />
+        )}
 
 
         {/* Days Row */}
@@ -102,8 +100,15 @@ export default function AddAlarmScreen() {
         {/* Next Alarm Row */}
         <View style={styles.nextAlarmRow}>
           <View>
-            <Text style={styles.nextAlarmLabel}>Next alarm</Text>
-            <Text style={styles.nextAlarmValue}>{dateLabel}</Text>
+            {
+              enabled ?
+                <>
+                  <Text style={styles.nextAlarmLabel}>Next alarm</Text>
+                  <Text style={styles.nextAlarmValue}>{dateLabel}</Text>
+                </>
+                :
+                <Text style={styles.nextAlarmLabel}>The alarm clock is off</Text>
+            }
           </View>
           <TouchableOpacity style={styles.setAlarmBtn} onPress={() => { onToggle(); setShowDatePicker(true) }} >
             <Ionicons name="calendar-outline" size={18} color="#8E8E93" />
@@ -114,7 +119,7 @@ export default function AddAlarmScreen() {
         {
           showDatePicker && (
             <DateTimePicker
-              value={date ? new Date(date) : now}
+              value={date ? new Date(date) : new Date()}
               mode="date"
               display="default"
               onChange={onChangeDate}
@@ -199,7 +204,7 @@ export default function AddAlarmScreen() {
           {/* Test Alarm Row */}
           <TouchableOpacity
             style={styles.settingsRow}
-            onPress={() => {onToggle(); router.push({ pathname: '/alarmScreen', params: { id } })}}
+            onPress={() => { onToggle(); router.push({ pathname: '/alarmScreen', params: { id } }) }}
           >
             <Ionicons name="play-circle-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
             <Text style={styles.rowLabel}>Test alarm</Text>
@@ -215,7 +220,7 @@ export default function AddAlarmScreen() {
               if (isEditing) {
                 onDelete()
                 handleDelete();
-                
+
               }
               else {
                 onToggle();

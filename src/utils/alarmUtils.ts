@@ -96,3 +96,47 @@ export function getNextAlarmDay({
 
   return { dateLabel: 'No alarm set', isoDate: null };
 }
+
+export function getTimeUntilAlarm(isoDate: string): string {
+  const now = new Date();
+  const alarm = new Date(isoDate);
+  
+  if (isNaN(alarm.getTime())) {
+    return 'Invalid date';
+  }
+
+  const diffMs = alarm.getTime() - now.getTime();
+
+  if (diffMs < 60000) {
+    return 'Before the alarm goes off: less than a minute';
+  }
+
+  const MS_IN_MIN = 60000;
+  const MIN_IN_HOUR = 60;
+  const MIN_IN_DAY = 1440;
+
+  const totalMinutes = Math.floor(diffMs / MS_IN_MIN);
+  const days = Math.floor(totalMinutes / MIN_IN_DAY);
+  const hours = Math.floor((totalMinutes % MIN_IN_DAY) / MIN_IN_HOUR);
+  const minutes = totalMinutes % MIN_IN_HOUR;
+
+  const parts: string[] = [];
+  if (days > 0) parts.push(`${days} d`);
+  if (hours > 0) parts.push(`${hours} h`);
+  if (minutes > 0) parts.push(`${minutes} min`);
+
+  return `Before the alarm goes off: ${parts.join(' ')}`;
+}
+
+export function getTimeAsDate (time: string, period: 'AM' | 'PM'): Date {
+  const [hourStr, minuteStr] = time.split(':');
+  let hours24 = parseInt(hourStr, 10);
+  const minutes = parseInt(minuteStr, 10);
+
+  if (period === 'PM' && hours24 !== 12) hours24 += 12;
+  if (period === 'AM' && hours24 === 12) hours24 = 0;
+
+  const d = new Date();
+  d.setHours(hours24, minutes, 0, 0);
+  return d;
+};

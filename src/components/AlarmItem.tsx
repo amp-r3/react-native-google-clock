@@ -3,6 +3,9 @@ import { Alarm, days, enableAlarm } from "../store/alarmSlice";
 import { useDispatch } from "react-redux";
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
+import Toast from 'react-native-toast-message';
+import { getTimeUntilAlarm } from '../utils/alarmUtils';
+import { useAlarmForm } from '../hooks/useAlarmForm';
 
 type Props = {
   alarm: Alarm;
@@ -14,9 +17,19 @@ export default function AlarmItem({ alarm }: Props) {
   const enabled = alarm.enabled
   const dispatch = useDispatch()
   const setEnabled = () => {
-    if(alarm.date || alarm.days.length > 0){
+    if (alarm.date || alarm.days.length > 0) {
       dispatch(enableAlarm({ id: alarm.id }))
+      if (!enabled) {
+        Toast.show({
+          type: 'success',
+          text1: getTimeUntilAlarm(alarm.date),
+          position: 'bottom',
+          visibilityTime: 2500,
+
+        });
+      }
     }
+
   }
   const router = useRouter()
 

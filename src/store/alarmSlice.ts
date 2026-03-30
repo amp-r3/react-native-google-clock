@@ -32,14 +32,9 @@ export const alarmSlice = createSlice({
   name: 'alarm',
   initialState,
   reducers: {
-    addAlarm: (state, action: PayloadAction<Alarm & { isoDate?: string; updatedSelectedDays?: days[] }>) => {
-      const { isoDate, updatedSelectedDays, ...payload } = action.payload;
-    
-      state.alarms.push({
-        ...payload,
-        date: isoDate ?? undefined,
-        days: updatedSelectedDays ?? payload.days,
-      });
+    addAlarm: (state, action: PayloadAction<Alarm>) => {   
+      const alarm = action.payload 
+      state.alarms.push(alarm);
     },
     editAlarm: (state, action: PayloadAction<{ 
       editedAlarm: Partial<Alarm>; 
