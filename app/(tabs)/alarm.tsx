@@ -6,14 +6,36 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AlarmItem from '../../src/components/AlarmItem';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../src/store/store';
 import { AlarmEmpty } from '../../src/components/AlarmEmpty';
+import SwipeableRow from '../../src/components/SwipeableRow';
+import { Alarm, addAlarm, deleteAlarm } from '../../src/store/alarmSlice';
+import Toast from 'react-native-toast-message';
 
 export default function AlarmScreen() {
   const alarms = useSelector((state: RootState) => state.alarm.alarms)
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const dispatch = useDispatch()
+
+  const removeAlarm = (item: Alarm) => {
+    if (item.id) {
+      dispatch(deleteAlarm({id: item.id}));
+      Toast.show({
+        type: 'info',
+        text1: "The alarm has been removed.",
+        position: 'bottom',
+        visibilityTime: 2500,
+        props: {
+          onUndo: () => {
+            Toast.hide()
+            dispatch(addAlarm(item));
+          },
+        },
+      });
+    }
+  };
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -31,7 +53,11 @@ export default function AlarmScreen() {
       <FlatList
         data={alarms}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <AlarmItem alarm={item} />}
+        renderItem={({ item }) => (
+          <SwipeableRow onRemove={() => removeAlarm(item)}>
+          <AlarmItem alarm={item} />
+        </SwipeableRow>
+        )}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={{ height: 4 }} />}

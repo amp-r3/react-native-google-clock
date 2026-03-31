@@ -39,6 +39,7 @@ export default function AlarmItem({ alarm }: Props) {
 
   return (
     <TouchableOpacity
+    activeOpacity={1}
       onPress={() => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         router.push({ pathname: '/add-alarm', params: { id: alarm.id } });
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#d4d4d4',
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 20,
   },
   cardDisabled: {

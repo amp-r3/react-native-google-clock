@@ -54,7 +54,7 @@ const MaterialToast = ({ text1, text2, props, type = 'info' }: MaterialToastProp
           activeOpacity={0.7}
         >
           <Text style={[styles.undoText, { color: undoColor }]}>
-            Отмена
+            Cancel
           </Text>
         </TouchableOpacity>
       )}
