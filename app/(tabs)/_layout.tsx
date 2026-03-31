@@ -36,15 +36,15 @@ function AnimatedTabBar({ state, navigation }: BottomTabBarProps) {
 
     Animated.timing(pillX, {
       toValue: layout.x,
-      duration: 250,
-      easing: Easing.out(Easing.ease),
+      duration: 280,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
       useNativeDriver: false,
     }).start();
 
     Animated.timing(pillWidth, {
       toValue: layout.width,
-      duration: 250,
-      easing: Easing.out(Easing.ease),
+      duration: 280,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
       useNativeDriver: false,
     }).start();
   };
@@ -91,15 +91,19 @@ function AnimatedTabBar({ state, navigation }: BottomTabBarProps) {
     <View
       style={[
         styles.tabBar,
-        { paddingBottom: insets.bottom + 8 }
+        { paddingBottom: insets.bottom + 4 },
       ]}
     >
       <Animated.View
         pointerEvents="none"
-        style={[styles.pill, { left: pillX, width: pillWidth }]}
+        style={[
+          styles.pill,
+          { left: pillX, width: pillWidth },
+        ]}
       />
 
       {TABS.map((tab, index) => {
+        const isActive = index === state.index;
 
         return (
           <TouchableOpacity
@@ -109,8 +113,19 @@ function AnimatedTabBar({ state, navigation }: BottomTabBarProps) {
             onPress={() => handlePress(index)}
             activeOpacity={0.7}
           >
-            <Ionicons name={tab.icon as IconName} size={22} color="#fff" />
-            <Text style={[styles.label, { color: "#fff" }]}>{tab.title}</Text>
+            <Ionicons
+              name={tab.icon as IconName}
+              size={24}
+              color={isActive ? "#FFFFFF" : "#A0A0A0"}
+            />
+            <Text
+              style={[
+                styles.label,
+                { color: isActive ? "#FFFFFF" : "#A0A0A0" },
+              ]}
+            >
+              {tab.title}
+            </Text>
           </TouchableOpacity>
         );
       })}
@@ -121,32 +136,41 @@ function AnimatedTabBar({ state, navigation }: BottomTabBarProps) {
 const styles = StyleSheet.create({
   tabBar: {
     flexDirection: "row",
-    backgroundColor: "#2b2b2b",
-    borderTopWidth: 0.2,
-    borderTopColor: "rgba(255,255,255, 0.2)",
-    paddingHorizontal: 6,
+    backgroundColor: "#1F1F1F",
+    borderTopWidth: 0.5,
+    borderTopColor: "rgba(255,255,255,0.08)",
+    paddingHorizontal: 8,
     paddingTop: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
+
   pill: {
     position: "absolute",
     top: 8,
-    height: 50,
+    height: 58,
     borderRadius: 99,
-    backgroundColor: "rgba(255,255,255,0.16)",
+    backgroundColor: "rgba(255,255,255,0.18)",
     borderWidth: 0.5,
-    borderColor: "rgba(255,255,255,0.1)",
+    borderColor: "rgba(255,255,255,0.12)",
   },
+
   tab: {
     flex: 1,
-    height: 50,
+    height: 58,
     alignItems: "center",
     justifyContent: "center",
-    gap: 3,
+    gap: 4,
     zIndex: 1,
   },
+
   label: {
     fontSize: 12,
     fontWeight: "700",
+    letterSpacing: 0.1,
   },
 });
 

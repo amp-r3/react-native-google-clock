@@ -39,39 +39,41 @@ export default function AlarmScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-
+  
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Alarms</Text>
         <TouchableOpacity>
-          <Ionicons name="ellipsis-vertical" size={22} color="#fff" />
+          <Ionicons name="ellipsis-vertical" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
-
-      {
-      alarms.length < 1 ? 
-      <AlarmEmpty/> :
-      <FlatList
-        data={alarms}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <SwipeableRow onRemove={() => removeAlarm(item)}>
-          <AlarmItem alarm={item} />
-        </SwipeableRow>
-        )}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={{ height: 4 }} />}
-      />
-      }
-
-
+  
+      {alarms.length < 1 ? (
+        <AlarmEmpty />
+      ) : (
+        <FlatList
+          data={alarms}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <SwipeableRow onRemove={() => removeAlarm(item)}>
+              <AlarmItem alarm={item} />
+            </SwipeableRow>
+          )}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        />
+      )}
+  
+      {/* FAB */}
       <TouchableOpacity
-        style={[styles.fab, { bottom: insets.bottom }]}
+        style={[styles.fab, { bottom: insets.bottom + 16 }]}  
+        activeOpacity={0.9}
         onPress={() => router.push('/add-alarm')}
       >
-        <Ionicons name="add" size={30} color="#000" />
+        <Ionicons name="add" size={38} color="#0F0F0F" style={styles.fabIcon} />
       </TouchableOpacity>
-
+  
     </View>
   );
 }
@@ -79,32 +81,52 @@ export default function AlarmScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#141414',
+    backgroundColor: '#0F0F0F',          
   },
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
+    backgroundColor: '#0F0F0F',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
+    letterSpacing: -0.5,
     color: '#FFFFFF',
   },
+
   list: {
     paddingHorizontal: 16,
-    paddingBottom: 16,
+    paddingBottom: 100,                   
+    paddingTop: 8,
   },
+
   fab: {
     position: 'absolute',
     right: 24,
+    bottom: 24,                     
     width: 86,
     height: 86,
-    borderRadius: 16,
-    backgroundColor: '#fff',
+    borderRadius: 22,                  
+    backgroundColor: '#FFFFFF',        
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  fabIcon: {
+    color: '#0F0F0F',
   },
 });

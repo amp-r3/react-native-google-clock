@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { getNextAlarmDay } from '../utils/alarmUtils';
 
 export interface Alarm {
   id: string;
@@ -53,6 +52,7 @@ export const alarmSlice = createSlice({
     },
     enableAlarm: (state, action: PayloadAction<{ id: string }>) => {
       const alarm = state.alarms.find(item => item.id === action.payload.id)
+      
       if (alarm) {
         alarm.enabled = !alarm.enabled
       }

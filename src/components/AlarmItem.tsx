@@ -1,10 +1,11 @@
 import { StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
-import { Alarm, days, enableAlarm } from "../store/alarmSlice";
+import { Alarm, addAlarm, days, editAlarm, enableAlarm } from "../store/alarmSlice";
 import { useDispatch } from "react-redux";
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Toast from 'react-native-toast-message';
-import { getIsScheduled, getTimeUntilAlarm } from '../utils/alarmUtils';
+import { getDefaultDate, getIsScheduled, getTimeUntilAlarm } from '../utils/alarmUtils';
+import { useAlarmHaptics } from '../hooks/useAlarmHaptics';
 
 type Props = {
   alarm: Alarm;
@@ -20,28 +21,61 @@ export default function AlarmItem({ alarm }: Props) {
     day: 'numeric',
     month: 'long',
   })
-  const setEnabled = () => {
-    if (alarm.date || alarm.days.length > 0) {
-      dispatch(enableAlarm({ id: alarm.id }))
+  const { onToggle } = useAlarmHaptics()
+
+  const handleToggleAlarm = () => {
+    const isAlarmPassed = new Date(alarm.date).getTime() < Date.now();
+
+    if (isAlarmPassed && !enabled) {
+      const newDate = getDefaultDate(alarm.time, alarm.period);
+
+      dispatch(editAlarm({ id: alarm.id, editedAlarm: { ...alarm, date: newDate } }));
+      dispatch(enableAlarm({ id: alarm.id }));
+
+      Toast.show({
+        type: 'info',
+        text1: "The alarm clock won't sound today.",
+        text2: "Automatically rescheduled for tomorrow",
+        position: 'bottom',
+        visibilityTime: 2000,
+        onHide: () => {
+          Toast.show({
+            type: 'info',
+            text1: getTimeUntilAlarm(newDate),
+            position: 'bottom',
+            visibilityTime: 2500,
+          });
+        },
+      });
+
+    } else if (alarm.date || alarm.days.length > 0) {
+      dispatch(enableAlarm({ id: alarm.id }));
+
       if (!enabled) {
         Toast.show({
           type: 'info',
           text1: getTimeUntilAlarm(alarm.date),
           position: 'bottom',
           visibilityTime: 2500,
-
         });
       }
-    }
 
-  }
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Set a date or repeat days first',
+        position: 'bottom',
+        visibilityTime: 2000,
+      });
+    }
+  };
   const router = useRouter()
 
   return (
     <TouchableOpacity
-    activeOpacity={1}
+      activeOpacity={1}
       onPress={() => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        onToggle();
         router.push({ pathname: '/add-alarm', params: { id: alarm.id } });
       }}
       style={[styles.card, !enabled && styles.cardDisabled]}
@@ -61,8 +95,16 @@ export default function AlarmItem({ alarm }: Props) {
         </View>
 
         {
-          isScheduled ?
-            <Text>{`Scheduled for ${scheduledText}`}</Text> :
+          isScheduled ? (
+            <Text
+              style={[
+                styles.scheduledText,
+                enabled ? { color: '#1C1C1E' } : { color: '#FFFFFF' }
+              ]}
+            >
+              {`Scheduled for ${scheduledText}`}
+            </Text>
+          ) :
             <View style={styles.daysRow}>
               {DAYS.map(day => {
                 const isActive = alarm.days.includes(day);
@@ -95,10 +137,13 @@ export default function AlarmItem({ alarm }: Props) {
         value={enabled}
         onValueChange={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          setEnabled();
+          handleToggleAlarm();
         }}
-        trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
-        thumbColor={enabled ? '#fff' : '#636366'}
+        trackColor={{
+          false: enabled ? '#C8C8C8' : '#3A3A3C',
+          true: enabled ? '#1C1C1E' : '#636366'
+        }}
+        thumbColor={enabled ? '#FFFFFF' : '#9E9E9E'}
         style={{ transform: [{ scaleX: 1.4 }, { scaleY: 1.4 }] }}
       />
     </TouchableOpacity>
@@ -110,16 +155,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#d4d4d4',
+    backgroundColor: '#F0F0F0',
     borderRadius: 20,
     padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 4,
   },
   cardDisabled: {
     backgroundColor: '#212121',
+    shadowOpacity: 0.08,
+    elevation: 2,
   },
+
   info: {
     gap: 2,
+    flex: 1,
   },
+
   timeRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
@@ -128,23 +183,29 @@ const styles = StyleSheet.create({
   time: {
     fontSize: 40,
     fontWeight: '700',
-    color: '#000',
     letterSpacing: -1,
+    color: '#1C1C1E',              
   },
   period: {
     marginBottom: 6,
     fontSize: 16,
     fontWeight: '500',
-    color: '#3c3c3c',
+    color: '#6B6B6B',                
   },
   label: {
     fontSize: 14,
-    color: '#000',
     fontWeight: '600',
+    color: '#1C1C1E',
   },
   textDisabled: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontWeight: '400',
+  },
+
+  scheduledText: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginTop: 4,
   },
 
   daysRow: {
@@ -161,33 +222,34 @@ const styles = StyleSheet.create({
   },
 
   dayBadgeActive: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C1E',        
   },
   dayBadgeInactive: {
-    backgroundColor: 'rgba(0,0,0,0.08)',
+    backgroundColor: 'rgba(28, 28, 30, 0.08)',
   },
+
   dayBadgeActiveDisabled: {
-    backgroundColor: 'rgba(255,255,255,0.18)',
+    backgroundColor: 'rgba(255,255,255,0.20)',
   },
   dayBadgeInactiveDisabled: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
 
   dayText: {
     fontSize: 10,
     fontWeight: '700',
-    letterSpacing: 0.2,
+    letterSpacing: 0.3,
   },
   dayTextActive: {
-    color: '#fff',
+    color: '#FFFFFF',
   },
   dayTextInactive: {
-    color: 'rgba(0,0,0,0.3)',
+    color: 'rgba(28,28,30,0.45)',
   },
   dayTextActiveDisabled: {
-    color: 'rgba(255,255,255,0.9)',
+    color: '#FFFFFF',
   },
   dayTextInactiveDisabled: {
-    color: 'rgba(255,255,255,0.2)',
+    color: 'rgba(255,255,255,0.35)',
   },
 });

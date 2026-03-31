@@ -28,7 +28,7 @@ export default function RootLayout() {
               options={{
                 title: 'New Alarm',
                 presentation: 'modal',
-                headerStyle: { backgroundColor: '#141414' },
+                headerStyle: { backgroundColor: '#0F0F0F' },
                 headerTintColor: '#fff',
               }}
             />

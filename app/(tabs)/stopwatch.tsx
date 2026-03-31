@@ -158,7 +158,7 @@ export default function StopWatchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#141414',
+    backgroundColor: '#0F0F0F',
   },
 
   header: {
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF6B6B',
   },
   startButton: {
-    backgroundColor: '#d4d4d4',
+    backgroundColor: '#F0F0F0',
   },
   secondaryButton: {
     paddingVertical: 35,

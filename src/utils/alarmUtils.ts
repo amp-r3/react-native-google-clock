@@ -152,3 +152,21 @@ export function getIsScheduled(date: Date): boolean {
 
   return target > tomorrow;
 }
+
+export function getDefaultDate (time: string, period: 'AM' | 'PM'): string {
+  const now = new Date();
+  const [hourStr, minuteStr] = time.split(':');
+  let hours24 = parseInt(hourStr, 10);
+  const minutes = parseInt(minuteStr, 10);
+
+  if (period === 'PM' && hours24 !== 12) hours24 += 12;
+  if (period === 'AM' && hours24 === 12) hours24 = 0;
+
+  const alarmDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours24, minutes);
+
+  if (alarmDate <= now) {
+    alarmDate.setDate(alarmDate.getDate() + 1);
+  }
+
+  return alarmDate.toISOString();
+};

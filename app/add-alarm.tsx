@@ -48,7 +48,7 @@ export default function AddAlarmScreen() {
 
   const onTestHandle = () => {
     if (isEditing) {
-      onToggle(); 
+      onToggle();
       router.push({ pathname: '/alarmScreen', params: { id } });
     } else {
       Toast.show({
@@ -68,12 +68,7 @@ export default function AddAlarmScreen() {
     >
       <Stack.Screen options={{ title: label || 'New alarm' }} />
 
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.container}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
+      <View style={styles.container}>
         {/* Time Row */}
         <View style={styles.timeRow}>
           <TouchableOpacity style={styles.timeLeft} onPress={() => { onToggle(); setShowTimePicker(true) }}>
@@ -163,87 +158,93 @@ export default function AddAlarmScreen() {
 
         {/* Settings Group */}
         <View style={styles.settingsGroup}>
-          <View style={styles.settingsRow}>
-            <Ionicons name="bed-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
-            <Text style={styles.rowLabel}>Snooze</Text>
-            <TouchableOpacity>
-              <Ionicons name="add" size={24} color="#8E8E93" />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.separator} />
-
-          <View style={styles.settingsRow}>
-            <Ionicons name="pricetag-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
-            <Text style={styles.rowLabel}>Alarm name</Text>
-            <TextInput
-              style={styles.inlineInput}
-              placeholder="Enter name"
-              onChangeText={setLabel}
-              placeholderTextColor="#8E8E93"
-              value={label}
-              textAlign="right"
-              returnKeyType="done"
-            />
-          </View>
-
-          <View style={styles.separator} />
-
-          <View style={styles.settingsRow}>
-            <Ionicons name="notifications-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
-            <Text style={styles.rowLabel}>Alarm sound</Text>
-            <Text style={styles.rowValue}>Default (Morning{'\n'}Fresh)</Text>
-          </View>
-
-          <View style={styles.separator} />
-
-          <View style={styles.settingsRow}>
-            <Ionicons name="phone-portrait-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
-            <Text style={styles.rowLabel}>Vibration</Text>
-            <Switch
-              value={alarmOptions.vibration}
-              onValueChange={(value) => { onToggle(); handleOptionChange('vibration', value) }}
-              trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
-              thumbColor={alarmOptions.vibration ? '#fff' : '#636366'}
-              style={styles.switchScale}
-            />
-          </View>
-
-          <View style={styles.separator} />
-
-          <View style={styles.settingsRow}>
-            <Ionicons name="rainy-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
-            <Text style={styles.rowLabel}>Weather forecast</Text>
-            <Switch
-              value={alarmOptions.weather}
-              onValueChange={(value) => { onToggle(); handleOptionChange('weather', value) }}
-              trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
-              thumbColor={alarmOptions.weather ? '#fff' : '#636366'}
-              style={styles.switchScale}
-            />
-          </View>
-
-          <View style={styles.separator} />
-
-          <View style={styles.settingsRow}>
-            <Ionicons name="grid-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
-            <Text style={styles.rowLabel}>Apps</Text>
-            <TouchableOpacity>
-              <Ionicons name="add" size={24} color="#8E8E93" />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.separator} />
-
-          {/* Test Alarm Row */}
-          <TouchableOpacity
-            style={styles.settingsRow}
-            onPress={onTestHandle}
+          <ScrollView
+            nestedScrollEnabled={true}           // важно для Android
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.settingsScrollContent}
           >
-            <Ionicons name="play-circle-outline" size={20} color="#8E8E93" style={styles.rowIcon} />
-            <Text style={styles.rowLabel}>Test alarm</Text>
-            <Ionicons name="chevron-forward" size={16} color="#8E8E93" />
-          </TouchableOpacity>
+            {/* Snooze */}
+            <View style={styles.settingsRow}>
+              <Ionicons name="bed-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <Text style={styles.rowLabel}>Snooze</Text>
+              <TouchableOpacity>
+                <Ionicons name="add" size={24} color="#A0A0A0" />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.separator} />
+
+            {/* Alarm name */}
+            <View style={styles.settingsRow}>
+              <Ionicons name="pricetag-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <Text style={styles.rowLabel}>Alarm name</Text>
+              <TextInput
+                style={styles.inlineInput}
+                placeholder="Enter name"
+                onChangeText={setLabel}
+                placeholderTextColor="#8E8E93"
+                value={label}
+                textAlign="right"
+                returnKeyType="done"
+              />
+            </View>
+            <View style={styles.separator} />
+
+            {/* Alarm sound */}
+            <View style={styles.settingsRow}>
+              <Ionicons name="notifications-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <Text style={styles.rowLabel}>Alarm sound</Text>
+              <Text style={styles.rowValue}>Default (Morning Fresh)</Text>
+            </View>
+            <View style={styles.separator} />
+
+            {/* Vibration */}
+            <View style={styles.settingsRow}>
+              <Ionicons name="phone-portrait-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <Text style={styles.rowLabel}>Vibration</Text>
+              <Switch
+                value={alarmOptions.vibration}
+                onValueChange={(value) => { onToggle(); handleOptionChange('vibration', value) }}
+                trackColor={{ false: '#3A3A3C', true: '#1F1F1F' }}
+                thumbColor={alarmOptions.vibration ? '#FFFFFF' : '#636366'}
+                style={styles.switchScale}
+              />
+            </View>
+            <View style={styles.separator} />
+
+            {/* Weather forecast */}
+            <View style={styles.settingsRow}>
+              <Ionicons name="rainy-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <Text style={styles.rowLabel}>Weather forecast</Text>
+              <Switch
+                value={alarmOptions.weather}
+                onValueChange={(value) => { onToggle(); handleOptionChange('weather', value) }}
+                trackColor={{ false: '#3A3A3C', true: '#1F1F1F' }}
+                thumbColor={alarmOptions.weather ? '#FFFFFF' : '#636366'}
+                style={styles.switchScale}
+              />
+            </View>
+            <View style={styles.separator} />
+
+            {/* Apps */}
+            <View style={styles.settingsRow}>
+              <Ionicons name="grid-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <Text style={styles.rowLabel}>Apps</Text>
+              <TouchableOpacity>
+                <Ionicons name="add" size={24} color="#A0A0A0" />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.separator} />
+
+            {/* Test Alarm */}
+            <TouchableOpacity
+              style={styles.settingsRow}
+              onPress={onTestHandle}
+            >
+              <Ionicons name="play-circle-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <Text style={styles.rowLabel}>Test alarm</Text>
+              <Ionicons name="chevron-forward" size={16} color="#A0A0A0" />
+            </TouchableOpacity>
+          </ScrollView>
         </View>
 
         {/* Bottom Buttons */}
@@ -269,7 +270,7 @@ export default function AddAlarmScreen() {
             <Text style={styles.saveButtonText}>{isEditing ? 'Save changes' : 'Add alarm'}</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -277,17 +278,17 @@ export default function AddAlarmScreen() {
 const styles = StyleSheet.create({
   keyboardContainer: {
     flex: 1,
-    backgroundColor: '#141414',
-  },
-  scroll: {
-    flex: 1,
+    backgroundColor: '#0F0F0F',
   },
   container: {
+    flex: 1,     
     paddingTop: 24,
-    paddingBottom: 40,
     paddingHorizontal: 20,
-    gap: 20,
+    paddingBottom: 20,           
+    gap: 28,
   },
+
+  /* Time Row */
   timeRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -301,82 +302,115 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 64,
     fontWeight: '300',
-    letterSpacing: -1,
+    letterSpacing: -2.5,
   },
   ampm: {
     color: '#FFFFFF',
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '400',
+    marginLeft: 8,
   },
   changeButton: {
-    backgroundColor: '#3A3A3C',
-    borderRadius: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
+    backgroundColor: '#1F1F1F',
+    borderRadius: 28,
+    paddingHorizontal: 22,
+    paddingVertical: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
   },
   changeButtonText: {
     color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '500',
+    fontSize: 16,
+    fontWeight: '600',
   },
+
+  /* Days */
   daysRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingHorizontal: 4,
   },
   dayChip: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#1C1C1E',
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
   },
   dayChipActive: {
-    backgroundColor: '#d4d4d4',
+    backgroundColor: '#F0F0F0',
   },
   dayText: {
-    color: '#fff',
-    fontSize: 13,
-    fontWeight: '600',
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
   dayTextActive: {
-    color: '#000',
+    color: '#0F0F0F',
   },
+
+  /* Next Alarm */
   nextAlarmRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 4,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
   },
   nextAlarmLabel: {
-    color: '#8E8E93',
-    fontSize: 14,
+    color: '#A0A0A0',
+    fontSize: 15,
+    fontWeight: '500',
   },
   nextAlarmValue: {
-    color: '#8E8E93',
-    fontSize: 14,
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '600',
   },
   setAlarmBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
   },
   setAlarmText: {
-    color: '#8E8E93',
-    fontSize: 14,
+    color: '#A0A0A0',
+    fontSize: 15,
+    fontWeight: '500',
   },
+
+  /* Settings Group */
   settingsGroup: {
     backgroundColor: '#1C1C1E',
-    borderRadius: 14,
+    borderRadius: 20,
     overflow: 'hidden',
+    maxHeight: 370,                    // ≈ 5 опций видно одновременно
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  settingsScrollContent: {
+    paddingBottom: 8,
   },
   settingsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    minHeight: 52,
-    gap: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    minHeight: 56,
+    gap: 16,
   },
   rowIcon: {
     width: 24,
@@ -385,57 +419,64 @@ const styles = StyleSheet.create({
   rowLabel: {
     flex: 1,
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 17,
+    fontWeight: '500',
   },
   rowValue: {
-    color: '#8E8E93',
-    fontSize: 14,
+    color: '#A0A0A0',
+    fontSize: 16,
     textAlign: 'right',
-    maxWidth: 160,
   },
   inlineInput: {
     flex: 1,
-    color: '#8E8E93',
-    fontSize: 16,
+    color: '#FFFFFF',
+    fontSize: 17,
     textAlign: 'right',
     padding: 0,
   },
   switchScale: {
-    transform: [{ scaleX: 1.4 }, { scaleY: 1.4 }]
+    transform: [{ scaleX: 1.35 }, { scaleY: 1.35 }],
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#38383A',
-    marginLeft: 52,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    marginLeft: 56,
   },
+
+  /* Bottom Buttons */
   bottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 12,
-    marginTop: 8,
+    paddingTop: 16,
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: '#2C1A1A',
-    borderRadius: 14,
-    paddingVertical: 16,
+    backgroundColor: '#2C2C2E',
+    borderRadius: 20,
+    paddingVertical: 18,
     alignItems: 'center',
   },
   cancelButtonText: {
-    color: '#FF453A',
+    color: '#E0E0E0',
     fontSize: 17,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   saveButton: {
     flex: 2,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    paddingVertical: 16,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 20,
+    paddingVertical: 18,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 8,
   },
   saveButtonText: {
-    color: '#000000',
+    color: '#0F0F0F',
     fontSize: 17,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });

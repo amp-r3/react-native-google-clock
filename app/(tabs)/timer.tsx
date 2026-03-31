@@ -11,7 +11,7 @@ export default function TimerScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#1C1C1E',
+  container: { flex: 1, backgroundColor: '#0F0F0F',
     justifyContent: 'center', alignItems: 'center' },
   title: { color: '#fff', fontSize: 24 },
 });
