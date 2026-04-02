@@ -1,14 +1,15 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useMemo } from 'react';
+import { LapData } from '../types/stopwatch';
 
 export interface UseStopwatchReturn {
   displayTime: number;
   isRunning: boolean;
   laps: number[];
-  lastLapTime: number;
   handleStart: () => void;
   handleStop: () => void;
   handleReset: () => void;
   handleLap: () => void;
+  formattedLaps: LapData[];
   formatTime: (ms: number) => string;
 }
 
@@ -70,13 +71,35 @@ export function useStopwatch(): UseStopwatchReturn {
     }
   }, [isRunning, displayTime]);
 
-  const lastLapTime = laps.length > 0 ? displayTime - laps[0] : displayTime;
+  const formattedLaps = useMemo(() => {
+    if (laps.length === 0) return [];
+  
+    const lapsData: LapData[] = laps.map((lapMs, i) => ({
+      isActive: false as const,
+      order: laps.length - i,
+      start: laps[i + 1] ?? 0,
+      finish: lapMs,
+    })).reverse();
+  
+    if (isRunning) {
+      return [
+        ...lapsData,
+        { isActive: true as const, start: laps[0], finish: displayTime }
+      ];
+    } else {
+      return [
+        ...lapsData,
+        { isActive: false as const, start: laps[0], finish: displayTime, order: laps.length + 1 }
+      ];
+    }
+  }, [laps, isRunning, displayTime]);
+
 
   return {
     displayTime,
     isRunning,
     laps,
-    lastLapTime,
+    formattedLaps,
     handleStart,
     handleStop,
     handleReset,
