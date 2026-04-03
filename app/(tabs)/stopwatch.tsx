@@ -10,7 +10,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStopwatch } from '../../src/hooks/useStopwatch';
 import { FlatList } from 'react-native-gesture-handler';
 import LapItem from '../../src/components/LapItem';
-import { LapData } from '../../src/types/stopwatch';
 import { useRef } from 'react';
 
 export default function StopWatchScreen() {
@@ -19,7 +18,6 @@ export default function StopWatchScreen() {
     displayTime,
     isRunning,
     formattedLaps,
-    laps,
     handleStart,
     handleStop,
     handleReset,
@@ -121,15 +119,22 @@ const styles = StyleSheet.create({
 
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
+    backgroundColor: '#0F0F0F',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
   headerTitle: {
     fontSize: 28,
-    color: '#fff',
     fontWeight: '700',
+    letterSpacing: -0.5,
+    color: '#FFFFFF',
   },
   timerContainer: {
     letterSpacing: 0.2,

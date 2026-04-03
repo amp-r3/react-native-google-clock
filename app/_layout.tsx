@@ -3,7 +3,7 @@ import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { Provider } from 'react-redux';
 import { persistor, store } from "../src/store/store";
 import { useEffect } from "react";
-import { ActivityIndicator, useColorScheme } from "react-native";
+import { ActivityIndicator, useColorScheme, View } from "react-native";
 import Toast from 'react-native-toast-message';
 import { toastConfig } from "../src/components/ToastConfig";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -33,11 +33,21 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
+              name="add-clock"
+              options={{
+                title: 'New Clock',
+                presentation: 'modal',
+                headerStyle: { backgroundColor: '#0F0F0F' },
+                headerTintColor: '#fff',
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
               name="alarmScreen"
               options={{
                 presentation: 'modal',
                 headerShown: false,
-                statusBarHidden: true
+                statusBarHidden: true,
               }}
             />
           </Stack>

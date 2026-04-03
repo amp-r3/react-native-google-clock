@@ -1,4 +1,4 @@
-import { days } from "../store/alarmSlice";
+import { Alarm, days } from "../store/alarmSlice";
 
 interface GetNextAlarmDayProps {
   time?: string;
@@ -10,6 +10,17 @@ interface GetNextAlarmDayProps {
 interface NextAlarmResult {
   dateLabel: string;
   isoDate: string | null;
+}
+
+export function parseTime(time: string, period: 'AM' | 'PM') {
+  const [hourStr, minuteStr] = time.split(':');
+  let hours = parseInt(hourStr, 10);
+  const minutes = parseInt(minuteStr, 10);
+
+  if (period === 'PM' && hours !== 12) hours += 12;
+  if (period === 'AM' && hours === 12) hours = 0;
+
+  return { hours, minutes };
 }
 
 /**
@@ -29,14 +40,7 @@ export function getNextAlarmDay({
   const dayMap: Record<string, number> = { Mo: 0, Tu: 1, We: 2, Th: 3, Fr: 4, Sa: 5, Su: 6 };
   const now = new Date();
 
-  // Parse time to 24-hour format
-  const [alarmHourStr, alarmMinuteStr] = time.split(':');
-  let alarmHour = parseInt(alarmHourStr, 10);
-  const alarmMinute = parseInt(alarmMinuteStr, 10);
-
-  if (period === 'PM' && alarmHour !== 12) alarmHour += 12;
-  else if (period === 'AM' && alarmHour === 12) alarmHour = 0;
-
+  const { hours: alarmHour, minutes: alarmMinute } = parseTime(time, period);
   const DAY_MS = 1000 * 60 * 60 * 24;
 
   // === ONE-TIME ALARM MODE ===
@@ -64,7 +68,7 @@ export function getNextAlarmDay({
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
 
-  const selectedDaysSet = new Set(selectedDays.map(day => dayMap[day]));
+  const selectedDaysSet = new Set(selectedDays.map(day => dayMap[day as string]));
 
   if (selectedDaysSet.size === 0) {
     return { dateLabel: 'No alarm set', isoDate: null };
@@ -128,18 +132,13 @@ export function getTimeUntilAlarm(isoDate: string): string {
   return `Before the alarm goes off: ${parts.join(' ')}`;
 }
 
-export function getTimeAsDate (time: string, period: 'AM' | 'PM'): Date {
-  const [hourStr, minuteStr] = time.split(':');
-  let hours24 = parseInt(hourStr, 10);
-  const minutes = parseInt(minuteStr, 10);
-
-  if (period === 'PM' && hours24 !== 12) hours24 += 12;
-  if (period === 'AM' && hours24 === 12) hours24 = 0;
-
+export function getTimeAsDate(time: string, period: 'AM' | 'PM'): Date {
+  const { hours, minutes } = parseTime(time, period);
+  
   const d = new Date();
-  d.setHours(hours24, minutes, 0, 0);
+  d.setHours(hours, minutes, 0, 0);
   return d;
-};
+}
 
 export function getIsScheduled(date: Date): boolean {
   const now = new Date();
@@ -153,20 +152,47 @@ export function getIsScheduled(date: Date): boolean {
   return target > tomorrow;
 }
 
-export function getDefaultDate (time: string, period: 'AM' | 'PM'): string {
-  const now = new Date();
-  const [hourStr, minuteStr] = time.split(':');
-  let hours24 = parseInt(hourStr, 10);
-  const minutes = parseInt(minuteStr, 10);
+export function getDefaultDate(time: string, period: 'AM' | 'PM'): string {
+  const alarmDate = getTimeAsDate(time, period);
 
-  if (period === 'PM' && hours24 !== 12) hours24 += 12;
-  if (period === 'AM' && hours24 === 12) hours24 = 0;
-
-  const alarmDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours24, minutes);
-
-  if (alarmDate <= now) {
+  if (alarmDate <= new Date()) {
     alarmDate.setDate(alarmDate.getDate() + 1);
   }
 
   return alarmDate.toISOString();
-};
+}
+
+export function getNearestAlarm(alarms: Alarm[]): Alarm | null {
+  if (!alarms || alarms.length === 0) return null;
+
+  const activeAlarms = alarms.filter(alarm => alarm.enabled);
+  if (activeAlarms.length === 0) return null;
+
+  const now = Date.now();
+
+  return activeAlarms.reduce((closest, alarm) => {
+    const alarmTime   = new Date(alarm.date).getTime();
+    const closestTime = new Date(closest.date).getTime();
+
+    const diffAlarm   = alarmTime - now;
+    const diffClosest = closestTime - now;
+
+    if (diffAlarm < 0)   return closest;
+    if (diffClosest < 0) return alarm;
+
+    return diffAlarm < diffClosest ? alarm : closest;
+  }, activeAlarms[0]);
+}
+
+export function formatAlarmLabel(isoDate: string): string {
+  const date = new Date(isoDate);
+
+  const weekday = date.toLocaleDateString('en-US', { weekday: 'short' }); // "Sat"
+  const time    = date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  return `${weekday} ${time}`;
+}
