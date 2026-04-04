@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import {
   View,
   Text,
@@ -33,7 +33,7 @@ export default function StopWatchScreen() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Stopwatch</Text>
         <TouchableOpacity>
-          <Ionicons name="ellipsis-vertical" size={22} color="#fff" />
+          <MaterialCommunityIcons name="dots-vertical" size={22} color="#fff" />
         </TouchableOpacity>
       </View>
 

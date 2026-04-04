@@ -1,11 +1,11 @@
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Text, View } from "react-native";
 
 
 export function AlarmEmpty() {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-start', paddingTop: 120 }}>
-      <Ionicons name="alarm-outline" size={96} color="#4A4A4A" />
+      <MaterialCommunityIcons name="alarm-off" size={96} color="#4A4A4A" />
       <Text style={{ fontSize: 22, fontWeight: '600', color: '#AAAAAA', marginTop: 24 }}>
         No alarms yet
       </Text>

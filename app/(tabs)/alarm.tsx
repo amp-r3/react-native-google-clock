@@ -3,7 +3,7 @@ import {
   TouchableOpacity, StyleSheet
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AlarmItem from '../../src/components/AlarmItem';
 import { useDispatch, useSelector } from 'react-redux';
@@ -44,7 +44,7 @@ export default function AlarmScreen() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Alarms</Text>
         <TouchableOpacity>
-          <Ionicons name="ellipsis-vertical" size={24} color="#FFFFFF" />
+          <MaterialCommunityIcons name="dots-vertical" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
   
@@ -71,7 +71,7 @@ export default function AlarmScreen() {
         activeOpacity={0.9}
         onPress={() => router.push('/add-alarm')}
       >
-        <Ionicons name="add" size={38} color="#0F0F0F" style={styles.fabIcon} />
+        <MaterialCommunityIcons name="plus" size={38} color="#0F0F0F" style={styles.fabIcon} />
       </TouchableOpacity>
   
     </View>

@@ -9,7 +9,7 @@ import Animated, {
   Extrapolation,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAlarmHaptics } from '../hooks/useAlarmHaptics';
 
 const SWIPE_THRESHOLD = 110;
@@ -101,11 +101,11 @@ export default function SwipeableRow({ children, onRemove }: Props) {
         
         <View style={styles.backdrop}>
           <Animated.View style={[styles.iconContainer, leftIconStyle]}>
-            <Ionicons name="trash-outline" size={28} color={MD3Colors.onErrorContainer} />
+            <MaterialCommunityIcons name="trash-can-outline" size={28} color={MD3Colors.onErrorContainer} />
           </Animated.View>
 
           <Animated.View style={[styles.iconContainer, rightIconStyle]}>
-            <Ionicons name="trash-outline" size={28} color={MD3Colors.onErrorContainer} />
+            <MaterialCommunityIcons name="trash-can-outline" size={28} color={MD3Colors.onErrorContainer} />
           </Animated.View>
         </View>
 

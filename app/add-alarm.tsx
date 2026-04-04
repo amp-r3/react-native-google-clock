@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { days } from '../src/store/alarmSlice';
 import { getNextAlarmDay, getTimeAsDate } from '../src/utils/alarmUtils';
 import { useAlarmForm } from '../src/hooks/useAlarmForm';
@@ -129,7 +129,7 @@ export default function AddAlarmScreen() {
               style={styles.setAlarmBtn}
               onPress={handleRemoveScheduled}
             >
-              <Ionicons name="trash-outline" size={18} color="#8E8E93" />
+              <MaterialCommunityIcons name="calendar-remove" size={18} color="#8E8E93" />
               <Text style={[styles.setAlarmText]}>
                 unset alarm
               </Text>
@@ -139,7 +139,7 @@ export default function AddAlarmScreen() {
               style={styles.setAlarmBtn}
               onPress={() => { onToggle(); setShowDatePicker(true) }}
             >
-              <Ionicons name="calendar-outline" size={18} color="#8E8E93" />
+              <MaterialCommunityIcons name="calendar" size={18} color="#8E8E93" />
               <Text style={styles.setAlarmText}>Set alarm.</Text>
             </TouchableOpacity>
           )}
@@ -159,23 +159,23 @@ export default function AddAlarmScreen() {
         {/* Settings Group */}
         <View style={styles.settingsGroup}>
           <ScrollView
-            nestedScrollEnabled={true}           // важно для Android
+            nestedScrollEnabled={true}   
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.settingsScrollContent}
           >
             {/* Snooze */}
             <View style={styles.settingsRow}>
-              <Ionicons name="bed-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <MaterialCommunityIcons name="bed-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
               <Text style={styles.rowLabel}>Snooze</Text>
               <TouchableOpacity>
-                <Ionicons name="add" size={24} color="#A0A0A0" />
+                <MaterialCommunityIcons name="plus" size={24} color="#A0A0A0" />
               </TouchableOpacity>
             </View>
             <View style={styles.separator} />
 
             {/* Alarm name */}
             <View style={styles.settingsRow}>
-              <Ionicons name="pricetag-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <MaterialCommunityIcons name="alarm" size={20} color="#A0A0A0" style={styles.rowIcon} />
               <Text style={styles.rowLabel}>Alarm name</Text>
               <TextInput
                 style={styles.inlineInput}
@@ -191,7 +191,7 @@ export default function AddAlarmScreen() {
 
             {/* Alarm sound */}
             <View style={styles.settingsRow}>
-              <Ionicons name="notifications-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <MaterialCommunityIcons name="alarm-note" size={20} color="#A0A0A0" style={styles.rowIcon} />
               <Text style={styles.rowLabel}>Alarm sound</Text>
               <Text style={styles.rowValue}>Default (Morning Fresh)</Text>
             </View>
@@ -199,7 +199,7 @@ export default function AddAlarmScreen() {
 
             {/* Vibration */}
             <View style={styles.settingsRow}>
-              <Ionicons name="phone-portrait-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <MaterialCommunityIcons name="vibrate" size={20} color="#A0A0A0" style={styles.rowIcon} />
               <Text style={styles.rowLabel}>Vibration</Text>
               <Switch
                 value={alarmOptions.vibration}
@@ -213,7 +213,7 @@ export default function AddAlarmScreen() {
 
             {/* Weather forecast */}
             <View style={styles.settingsRow}>
-              <Ionicons name="rainy-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <MaterialCommunityIcons name="weather-cloudy" size={20} color="#A0A0A0" style={styles.rowIcon} />
               <Text style={styles.rowLabel}>Weather forecast</Text>
               <Switch
                 value={alarmOptions.weather}
@@ -227,10 +227,10 @@ export default function AddAlarmScreen() {
 
             {/* Apps */}
             <View style={styles.settingsRow}>
-              <Ionicons name="grid-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <MaterialCommunityIcons name="application-brackets" size={20} color="#A0A0A0" style={styles.rowIcon} />
               <Text style={styles.rowLabel}>Apps</Text>
               <TouchableOpacity>
-                <Ionicons name="add" size={24} color="#A0A0A0" />
+                <MaterialCommunityIcons name="plus" size={24} color="#A0A0A0" />
               </TouchableOpacity>
             </View>
             <View style={styles.separator} />
@@ -240,9 +240,9 @@ export default function AddAlarmScreen() {
               style={styles.settingsRow}
               onPress={onTestHandle}
             >
-              <Ionicons name="play-circle-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <MaterialCommunityIcons name="play-circle-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
               <Text style={styles.rowLabel}>Test alarm</Text>
-              <Ionicons name="chevron-forward" size={16} color="#A0A0A0" />
+              <MaterialCommunityIcons name="chevron-right" size={20} color="#A0A0A0" />
             </TouchableOpacity>
           </ScrollView>
         </View>

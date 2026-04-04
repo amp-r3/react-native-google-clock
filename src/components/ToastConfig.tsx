@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { BaseToastProps, ToastConfig } from 'react-native-toast-message';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface MaterialToastProps extends BaseToastProps {
   props?: {
@@ -20,19 +20,19 @@ const MaterialToast = ({ text1, text2, props, type = 'info' }: MaterialToastProp
   const getIconName = () => {
     switch (type) {
       case 'success':
-        return 'checkmark-circle';
+        return 'check-circle-outline';
       case 'error':
-        return 'close-circle';
+        return 'close-circle-outline';
       case 'info':
       default:
-        return 'information-circle';
+        return 'information-slab-circle-outline';
     }
   };
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
       <View style={styles.content}>
-        <Ionicons
+        <MaterialCommunityIcons
           name={getIconName()}
           size={26}
           color={iconColor}

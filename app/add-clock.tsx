@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { useState } from "react";
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
@@ -10,6 +10,7 @@ export default function AddClockScreen () {
   const navigation = useNavigation()
   const insets = useSafeAreaInsets();
 
+
   return (
     <View style={styles.screen}>
       <View style={[styles.headerWrapper, { paddingTop: insets.top }]}>
@@ -18,7 +19,7 @@ export default function AddClockScreen () {
             onPress={() => navigation.goBack()}
             style={styles.closeButton}
           >
-            <Text style={styles.closeButtonText}><Ionicons name="arrow-back" size={25}></Ionicons></Text>
+            <Text style={styles.closeButtonText}><MaterialCommunityIcons name="arrow-left" size={25}></MaterialCommunityIcons></Text>
           </TouchableOpacity>
           <TextInput
             placeholder="Search city..."
@@ -34,7 +35,7 @@ export default function AddClockScreen () {
             onPress={() => setQuery('')}
             style={styles.delButton}
           >
-            <Ionicons name='backspace-outline' color={'#fff'} size={25}></Ionicons>
+            <MaterialCommunityIcons name='backspace-outline' color={'#fff'} size={25}></MaterialCommunityIcons>
           </TouchableOpacity>
           }
         </View>

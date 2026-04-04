@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Animated,
@@ -14,13 +14,13 @@ import { useRef, useEffect } from "react";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { TabActions } from "@react-navigation/native";
 
-type IconName = React.ComponentProps<typeof Ionicons>["name"];
+type IconName = React.ComponentProps<typeof MaterialCommunityIcons>["name"];
 
 const TABS = [
-  { name: "alarm", title: "Alarms", icon: "alarm-outline" },
-  { name: "clock", title: "Clocks", icon: "time-outline" },
-  { name: "timer", title: "Timer", icon: "hourglass-outline" },
-  { name: "stopwatch", title: "Stopwatch", icon: "stopwatch-outline" },
+  { name: "alarm", title: "Alarms", icon: "alarm" },
+  { name: "clock", title: "Clocks", icon: "clock-outline" },
+  { name: "timer", title: "Timer", icon: "timer-sand-complete" },
+  { name: "stopwatch", title: "Stopwatch", icon: "timer-outline" },
 ] as const;
 
 function AnimatedTabBar({ state, navigation }: BottomTabBarProps) {
@@ -113,7 +113,7 @@ function AnimatedTabBar({ state, navigation }: BottomTabBarProps) {
             onPress={() => handlePress(index)}
             activeOpacity={0.7}
           >
-            <Ionicons
+            <MaterialCommunityIcons
               name={tab.icon as IconName}
               size={24}
               color={isActive ? "#FFFFFF" : "#A0A0A0"}

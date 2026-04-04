@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
@@ -40,7 +40,7 @@ export default function ClockScreen() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Clocks</Text>
         <TouchableOpacity>
-          <Ionicons name="ellipsis-vertical" size={24} color="#FFFFFF" />
+          <MaterialCommunityIcons name="dots-vertical" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
       <View style={styles.timeContainer}>
@@ -50,7 +50,7 @@ export default function ClockScreen() {
         <Text style={styles.date}>{date}</Text>
         {nearestDate && (
           <View style={{ flexDirection: 'row', gap: 6 }}>
-            <Ionicons name="alarm" size={25} color="#f0f0f0" />
+            <MaterialCommunityIcons name="alarm" size={25} color="#f0f0f0" />
             <Text style={styles.nearestAlarm}>{nearestDate}</Text>
           </View>
         )}
@@ -60,7 +60,7 @@ export default function ClockScreen() {
         activeOpacity={0.9}
         onPress={() => router.push('/add-clock')}
       >
-        <Ionicons name="add" size={38} color="#0F0F0F" style={styles.fabIcon} />
+        <MaterialCommunityIcons name="plus" size={38} color="#0F0F0F" style={styles.fabIcon} />
       </TouchableOpacity>
     </View>
   );
