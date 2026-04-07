@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1C1C1E',
     borderRadius: 20,
     overflow: 'hidden',
-    maxHeight: 370,                    // ≈ 5 опций видно одновременно
+    maxHeight: 370,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,

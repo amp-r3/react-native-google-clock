@@ -1,5 +1,5 @@
 import { StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
-import { Alarm, addAlarm, days, editAlarm, enableAlarm } from "../store/alarmSlice";
+import { Alarm, days, editAlarm, enableAlarm } from "../store/alarmSlice";
 import { useDispatch } from "react-redux";
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -11,7 +11,7 @@ type Props = {
   alarm: Alarm;
 };
 
-const DAYS: days[] = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+const DAYS: days[] = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as const;
 
 export default function AlarmItem({ alarm }: Props) {
   const enabled = alarm.enabled

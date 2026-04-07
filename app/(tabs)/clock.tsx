@@ -1,19 +1,31 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../src/store/rootReducer';
 import { formatAlarmLabel, getNearestAlarm } from '../../src/utils/alarmUtils';
+import { Clock, removeClock, selectClocks } from '../../src/store/clockSlice';
+import ClockItem from '../../src/components/ClockItem';
+import SwipeableRow from '../../src/components/SwipeableRow';
+
 
 export default function ClockScreen() {
-  const alarms = useSelector((state: RootState) => state.alarm.alarms)
+  const clocks = useSelector(selectClocks);
+  const alarms = useSelector((state: RootState) => state.alarm.alarms);
   const [time, setTime] = useState(new Date());
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const nearest = getNearestAlarm(alarms);
-  const nearestDate = nearest ? formatAlarmLabel(nearest.date) : null
+  const nearestDate = nearest ? formatAlarmLabel(nearest.date) : null;
+  const dispatch = useDispatch();
+
+  const deleteClock = (item: Clock) => {
+    if (item.id) {
+      dispatch(removeClock(item.id));
+    }
+  };
 
   const parts = new Intl.DateTimeFormat('en-US', {
     hour: '2-digit',
@@ -21,46 +33,68 @@ export default function ClockScreen() {
     hour12: true,
   }).formatToParts(time);
 
-  const formattedTime = parts.find(p => p.type === 'hour').value
+  const formattedTime = parts.find(p => p.type === 'hour')!.value
     + ':'
-    + parts.find(p => p.type === 'minute').value;
+    + parts.find(p => p.type === 'minute')!.value;
 
-  const period = parts.find(p => p.type === 'dayPeriod').value;
+  const period = parts.find(p => p.type === 'dayPeriod')!.value;
+
   const date = time.toLocaleDateString('en-US', {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
   });
+
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Clocks</Text>
         <TouchableOpacity>
-          <MaterialCommunityIcons name="dots-vertical" size={24} color="#FFFFFF" />
+          <MaterialCommunityIcons name="dots-vertical" size={24} color="#F5F5F5" />
         </TouchableOpacity>
       </View>
+
       <View style={styles.timeContainer}>
-        <Text style={styles.time}>{formattedTime}</Text><Text style={styles.period}>{period}</Text>
+        <Text style={styles.time}>{formattedTime}</Text>
+        <Text style={styles.period}>{period}</Text>
       </View>
-      <View style={[styles.optionsContainer, !nearest && { justifyContent: 'center' }]}>
+
+      <View style={styles.optionsContainer}>
         <Text style={styles.date}>{date}</Text>
         {nearestDate && (
-          <View style={{ flexDirection: 'row', gap: 6 }}>
-            <MaterialCommunityIcons name="alarm" size={25} color="#f0f0f0" />
+          <View style={styles.nearestAlarmContainer}>
+            <MaterialCommunityIcons name="alarm" size={24} color="#9E9E9E" />
             <Text style={styles.nearestAlarm}>{nearestDate}</Text>
           </View>
         )}
       </View>
+
+      <View style={styles.itemsContainer}>
+        <FlatList
+          nestedScrollEnabled
+          showsVerticalScrollIndicator
+          contentContainerStyle={styles.itemsScrollContent}
+          data={clocks}
+          keyExtractor={(item, i) => `${item.city}-${item.timezone}-${i}`}
+          renderItem={({ item }) => (
+            <SwipeableRow onRemove={() => deleteClock(item)}>
+              <ClockItem item={item} />
+            </SwipeableRow>
+          )}
+        />
+      </View>
+
       <TouchableOpacity
         style={[styles.fab, { bottom: insets.bottom + 16 }]}
         activeOpacity={0.9}
         onPress={() => router.push('/add-clock')}
       >
-        <MaterialCommunityIcons name="plus" size={38} color="#0F0F0F" style={styles.fabIcon} />
+        <MaterialCommunityIcons name="plus" size={38} style={styles.fabIcon} />
       </TouchableOpacity>
     </View>
   );
@@ -71,66 +105,88 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0F0F0F',
   },
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingVertical: 16,
-    backgroundColor: '#0F0F0F',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '700',
-    letterSpacing: -0.5,
-    color: '#FFFFFF',
+    letterSpacing: -1,
+    color: '#F5F5F5',
   },
+
   timeContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'center',
-    gap: 20,
-    padding: 25,
+    gap: 12,
+    paddingVertical: 32,
   },
   time: {
-    color: '#fff',
-    letterSpacing: 2,
-    fontSize: 90,
-    fontWeight: 400
+    color: '#F5F5F5',
+    fontSize: 88,
+    fontWeight: '700',
+    letterSpacing: -4,
   },
   period: {
-    color: '#fff',
-    fontSize: 30,
-    paddingBottom: 16,
-    fontWeight: 400,
+    color: '#9E9E9E',
+    fontSize: 32,
+    paddingBottom: 14,
+    fontWeight: '600',
   },
+
   optionsContainer: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 30
+    alignItems: 'center',
+    paddingHorizontal: 28,
+    paddingBottom: 20,
   },
   date: {
-    color: '#fff',
-    fontSize: 20,
+    color: '#F5F5F5',
+    fontSize: 18,
+    fontWeight: '500',
+    letterSpacing: -0.2,
+  },
+  nearestAlarmContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   nearestAlarm: {
-    color: '#fff',
-    fontSize: 20,
+    color: '#9E9E9E',
+    fontSize: 18,
+    fontWeight: '500',
   },
+
+  itemsContainer: {
+    flex: 1,
+    borderRadius: 28,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.22,
+    shadowRadius: 20,
+    elevation: 12,
+  },
+  itemsScrollContent: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+
   fab: {
     position: 'absolute',
     right: 24,
-    bottom: 24,
+    bottom: 24,                     
     width: 86,
     height: 86,
-    borderRadius: 22,
-    backgroundColor: '#FFFFFF',
+    borderRadius: 22,                  
+    backgroundColor: '#FFFFFF',        
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -140,6 +196,6 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   fabIcon: {
-    color: '#0F0F0F',
+    color: '#262626',
   },
 });

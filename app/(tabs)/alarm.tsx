@@ -71,7 +71,7 @@ export default function AlarmScreen() {
         activeOpacity={0.9}
         onPress={() => router.push('/add-alarm')}
       >
-        <MaterialCommunityIcons name="plus" size={38} color="#0F0F0F" style={styles.fabIcon} />
+        <MaterialCommunityIcons name="plus" size={38}  style={styles.fabIcon} />
       </TouchableOpacity>
   
     </View>
@@ -127,6 +127,6 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   fabIcon: {
-    color: '#0F0F0F',
+    color: '#262626',
   },
 });
