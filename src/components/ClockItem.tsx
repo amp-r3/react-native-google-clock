@@ -1,37 +1,13 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Clock } from '../store/clockSlice';
+import { getFormattedTime, getTimeDiff } from '../utils/clockUtils';
 
-const getFormattedTime = (timezone: string) => {
-  try {
-    return new Intl.DateTimeFormat('ru-RU', {
-      timeZone: timezone,
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    }).format(new Date());
-  } catch {
-    return '--:--:--';
-  }
-};
 
-const getTimeDiff = (timezone: string, localTimezone = 'Asia/Tashkent'): string => {
-  const getOffset = (tz: string) => {
-    const offsetStr = Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'shortOffset' })
-      .formatToParts(new Date())
-      .find(p => p.type === 'timeZoneName')?.value ?? '';
-    const [, sign, h, m = '0'] = offsetStr.match(/GMT([+-])(\d+)(?::(\d+))?/) ?? [];
-    return sign ? (sign === '+' ? 1 : -1) * (parseInt(h) + parseInt(m) / 60) : 0;
-  };
-
-  const diff = Math.round(getOffset(timezone) - getOffset(localTimezone));
-  if (diff === 0) return 'Local time';
-  return `${diff > 0 ? '+' : ''}${diff}h from you`;
-};
 
 export default function ClockItem({ item }: { item: Clock }) {
   const [time, setTime] = useState(() => getFormattedTime(item.timezone));
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   useEffect(() => {
     const id = setInterval(() => setTime(getFormattedTime(item.timezone)), 1000);
@@ -53,7 +29,7 @@ export default function ClockItem({ item }: { item: Clock }) {
       <View style={styles.info}>
         <Text style={styles.country}>{item.country}</Text>
         <Text style={styles.city}>{item.city}</Text>
-        <Text style={styles.timeDiff}>{getTimeDiff(item.timezone)}</Text>
+        <Text style={styles.timeDiff}>{getTimeDiff(item.timezone, timeZone)}</Text>
       </View>
 
       <View style={styles.timeContainer}>
@@ -115,7 +91,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   time: {
-    fontSize: 56,
+    fontSize: 50,
     fontWeight: '700',
     letterSpacing: -3,
     color: '#F5F5F5', 

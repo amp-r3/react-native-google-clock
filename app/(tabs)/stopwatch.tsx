@@ -33,7 +33,7 @@ export default function StopWatchScreen() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Stopwatch</Text>
         <TouchableOpacity>
-          <MaterialCommunityIcons name="dots-vertical" size={22} color="#fff" />
+          <MaterialCommunityIcons name="dots-vertical" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
 

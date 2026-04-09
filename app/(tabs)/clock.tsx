@@ -74,20 +74,26 @@ export default function ClockScreen() {
         )}
       </View>
 
-      <View style={styles.itemsContainer}>
-        <FlatList
-          nestedScrollEnabled
-          showsVerticalScrollIndicator
-          contentContainerStyle={styles.itemsScrollContent}
-          data={clocks}
-          keyExtractor={(item, i) => `${item.city}-${item.timezone}-${i}`}
-          renderItem={({ item }) => (
-            <SwipeableRow onRemove={() => deleteClock(item)}>
-              <ClockItem item={item} />
-            </SwipeableRow>
-          )}
-        />
-      </View>
+      {
+        clocks.length > 0 ?
+          <View style={styles.itemsContainer}>
+            <FlatList
+              nestedScrollEnabled
+              showsVerticalScrollIndicator
+              contentContainerStyle={styles.itemsScrollContent}
+              data={clocks}
+              keyExtractor={(item, i) => `${item.city}-${item.timezone}-${i}`}
+              renderItem={({ item }) => (
+                <SwipeableRow onRemove={() => deleteClock(item)}>
+                  <ClockItem item={item} />
+                </SwipeableRow>
+              )}
+            />
+          </View> :
+          <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+            <Text style={{ fontSize: 44, color: '#AAAAAA', textAlign: 'center' }}>No cities selected</Text>
+          </View>
+      }
 
       <TouchableOpacity
         style={[styles.fab, { bottom: insets.bottom + 16 }]}
@@ -110,14 +116,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     paddingVertical: 16,
+    backgroundColor: '#0F0F0F',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '700',
-    letterSpacing: -1,
-    color: '#F5F5F5',
+    letterSpacing: -0.5,
+    color: '#FFFFFF',
   },
 
   timeContainer: {
@@ -182,11 +194,11 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 24,
-    bottom: 24,                     
+    bottom: 24,
     width: 86,
     height: 86,
-    borderRadius: 22,                  
-    backgroundColor: '#FFFFFF',        
+    borderRadius: 22,
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',

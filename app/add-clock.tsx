@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import cityTimezones from 'city-timezones';
 import { addClock, removeClock, selectClocks } from "../src/store/clockSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { getFormattedTime } from "../src/utils/clockUtils";
 
 const ALL_CITIES = cityTimezones.cityMapping;
 
@@ -30,18 +31,7 @@ const searchCities = (query: string): City[] => {
     .map((c) => ({ city: c.city, country: c.country, timezone: c.timezone }));
 };
 
-const getFormattedTime = (timezone: string) => {
-  try {
-    return new Intl.DateTimeFormat('ru-RU', {
-      timeZone: timezone,
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    }).format(new Date());
-  } catch {
-    return '--:--:--';
-  }
-};
+
 
 export default function AddClockScreen() {
   const clocks = useSelector(selectClocks);
@@ -102,11 +92,16 @@ export default function AddClockScreen() {
       </View>
 
       <View style={styles.resultsContainer}>
-        {results.length > 0 && (
+        {results.length > 0 ? (
           <FlatList
             data={results}
             keyExtractor={(item, i) => `${item.city}-${item.timezone}-${i}`}
             renderItem={({ item }) => {
+              const time = getFormattedTime(item.timezone)
+              const [h, m] = time.split(':');
+              const hour = parseInt(h, 10);
+              const ampm = hour >= 12 ? 'PM' : 'AM';
+              const display12 = `${String(hour % 12 || 12).padStart(2, '0')}:${m}`;
               const isSaved = clocks.some((c) => c.timezone === item.timezone)
               return (
                 <TouchableOpacity
@@ -122,9 +117,10 @@ export default function AddClockScreen() {
                     isSaved &&
                     <MaterialCommunityIcons name="checkbox-marked-circle-outline" color='#fff' size={26} style={{ marginHorizontal: 15 }}></MaterialCommunityIcons>
                   }
-                  <Text style={styles.timezoneText}>
-                    {getFormattedTime(item?.timezone)}
-                  </Text>
+                  <View style={styles.timeRow}>
+                    <Text style={styles.time}>{display12}</Text>
+                    <Text style={styles.period}>{ampm}</Text>
+                  </View>
                 </TouchableOpacity>
               )
             }}
@@ -132,7 +128,12 @@ export default function AddClockScreen() {
             ItemSeparatorComponent={() => <View style={styles.separator} />}
             contentContainerStyle={styles.resultsList}
           />
-        )}
+        ) : 
+        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', marginBottom: 400}}>
+          <MaterialCommunityIcons name="magnify" color='#AAA' size={80}></MaterialCommunityIcons>
+          <Text style={{fontSize: 22, color: '#AAA'}}>City ​​search</Text>
+        </View>
+        }
       </View>
     </View>
   );
@@ -216,10 +217,20 @@ const styles = StyleSheet.create({
     color: '#9E9E9E',
     marginTop: 2,
   },
-  timezoneText: {
+  timeRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 3,
+  },
+  time: {
     fontSize: 14,
-    fontWeight: '400',
+    fontWeight: '600',
     color: '#757575',
+  },
+  period: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#757575'
   },
   separator: {
     height: 1,
