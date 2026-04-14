@@ -208,6 +208,6 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   fabIcon: {
-    color: '#262626',
+    color: '#636363',
   },
 });
