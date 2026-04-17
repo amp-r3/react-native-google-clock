@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Clock",
-    "slug": "my-app",
+    "slug": "google-clock",
     "version": "0.0.1",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
@@ -17,15 +17,28 @@
         "backgroundColor": "#ffffff"
       },
       "permissions": [],
-      "predictiveBackGestureEnabled": true
+      "predictiveBackGestureEnabled": false
     },
     "plugins": [
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#ffffff",           
+          "image": "./assets/images/icon.png",    
+          "dark": {
+            "image": "./assets/images/icon.png",  
+            "backgroundColor": "#000000"          
+          },
+          "imageWidth": 200                       
+        }
+      ]
     ],
     "extra": {
       "eas": {
         "projectId": "a89fc711-da71-42c2-ad83-c72e58a2c672"
       }
-    }
+    },
+    "icon": "./assets/images/icon.png"
   }
 }
