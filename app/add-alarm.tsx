@@ -8,7 +8,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { days } from '../src/store/alarmSlice';
 import { getNextAlarmDay, getTimeAsDate } from '../src/utils/alarmUtils';
 import { useAlarmForm } from '../src/hooks/useAlarmForm';
-import { useAlarmHaptics } from '../src/hooks/useAlarmHaptics';
+import { useHaptics } from '../src/hooks/useHaptics';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Toast from 'react-native-toast-message';
 
@@ -29,7 +29,6 @@ export default function AddAlarmScreen() {
     enabled,
     toggleDay,
     alarmOptions,
-    setDate,
     setLabel,
     setShowTimePicker,
     setShowDatePicker,
@@ -42,13 +41,13 @@ export default function AddAlarmScreen() {
     isEditing,
   } = useAlarmForm({ id, onSuccess: () => { router.back() } })
 
-  const { onToggle, onDelete, onSave } = useAlarmHaptics()
+  const { onToggle, onDelete, onSave, onPress, onSelect, onSoftPress } = useHaptics()
 
   const { dateLabel } = getNextAlarmDay({ time, period, selectedDays, date: date ? new Date(date) : null })
 
   const onTestHandle = () => {
     if (isEditing) {
-      onToggle();
+      onPress();
       router.push({ pathname: '/alarmScreen', params: { id } });
     } else {
       Toast.show({
@@ -71,12 +70,12 @@ export default function AddAlarmScreen() {
       <View style={styles.container}>
         {/* Time Row */}
         <View style={styles.timeRow}>
-          <TouchableOpacity style={styles.timeLeft} onPress={() => { onToggle(); setShowTimePicker(true) }}>
+          <TouchableOpacity style={styles.timeLeft} onPress={() => { onSelect(); setShowTimePicker(true) }}>
             <Text style={styles.time}>
               {time} <Text style={styles.ampm}>{period}</Text>
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.changeButton} onPress={() => { onToggle(); setShowTimePicker(true) }}>
+          <TouchableOpacity style={styles.changeButton} onPress={() => { onSelect(); setShowTimePicker(true) }}>
             <Text style={styles.changeButtonText}>Change</Text>
           </TouchableOpacity>
         </View>
@@ -99,7 +98,7 @@ export default function AddAlarmScreen() {
             return (
               <TouchableOpacity
                 key={day}
-                onPress={() => { onToggle(); toggleDay(day) }}
+                onPress={() => { onSoftPress(); toggleDay(day) }}
                 style={[styles.dayChip, active && styles.dayChipActive]}
               >
                 <Text style={[styles.dayText, active && styles.dayTextActive]}>
@@ -127,7 +126,7 @@ export default function AddAlarmScreen() {
           {isScheduled ? (
             <TouchableOpacity
               style={styles.setAlarmBtn}
-              onPress={handleRemoveScheduled}
+              onPress={() => { onDelete(); handleRemoveScheduled() }}
             >
               <MaterialCommunityIcons name="calendar-remove" size={18} color="#8E8E93" />
               <Text style={[styles.setAlarmText]}>
@@ -137,7 +136,7 @@ export default function AddAlarmScreen() {
           ) : (
             <TouchableOpacity
               style={styles.setAlarmBtn}
-              onPress={() => { onToggle(); setShowDatePicker(true) }}
+              onPress={() => { onSelect(); setShowDatePicker(true) }}
             >
               <MaterialCommunityIcons name="calendar" size={18} color="#8E8E93" />
               <Text style={styles.setAlarmText}>Set alarm.</Text>
@@ -159,7 +158,7 @@ export default function AddAlarmScreen() {
         {/* Settings Group */}
         <View style={styles.settingsGroup}>
           <ScrollView
-            nestedScrollEnabled={true}   
+            nestedScrollEnabled={true}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.settingsScrollContent}
           >
@@ -203,8 +202,8 @@ export default function AddAlarmScreen() {
               <Text style={styles.rowLabel}>Vibration</Text>
               <Switch
                 value={alarmOptions.vibration}
-                onValueChange={(value) => { onToggle(); handleOptionChange('vibration', value) }}
-                trackColor={{ false: '#3A3A3C', true: '#1F1F1F' }}
+                onValueChange={(value) => { onSoftPress(); handleOptionChange('vibration', value) }}
+                trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
                 thumbColor={alarmOptions.vibration ? '#FFFFFF' : '#636366'}
                 style={styles.switchScale}
               />
@@ -217,8 +216,8 @@ export default function AddAlarmScreen() {
               <Text style={styles.rowLabel}>Weather forecast</Text>
               <Switch
                 value={alarmOptions.weather}
-                onValueChange={(value) => { onToggle(); handleOptionChange('weather', value) }}
-                trackColor={{ false: '#3A3A3C', true: '#1F1F1F' }}
+                onValueChange={(value) => { onSoftPress(); handleOptionChange('weather', value) }}
+                trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
                 thumbColor={alarmOptions.weather ? '#FFFFFF' : '#636366'}
                 style={styles.switchScale}
               />
@@ -281,10 +280,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#0F0F0F',
   },
   container: {
-    flex: 1,     
+    flex: 1,
     paddingTop: 24,
     paddingHorizontal: 20,
-    paddingBottom: 20,           
+    paddingBottom: 20,
     gap: 28,
   },
 

@@ -11,6 +11,7 @@ import { useStopwatch } from '../../src/hooks/useStopwatch';
 import { FlatList } from 'react-native-gesture-handler';
 import LapItem from '../../src/components/LapItem';
 import { useRef } from 'react';
+import { useHaptics } from '../../src/hooks/useHaptics';
 
 export default function StopWatchScreen() {
   const insets = useSafeAreaInsets();
@@ -24,6 +25,8 @@ export default function StopWatchScreen() {
     handleLap,
     formatTime,
   } = useStopwatch();
+
+  const {onPress,  onDelete} = useHaptics()
 
   const flatListRef = useRef<FlatList>(null);
   
@@ -78,7 +81,7 @@ export default function StopWatchScreen() {
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
           style={[styles.button, isRunning ? styles.stopButton : styles.startButton]}
-          onPress={isRunning ? handleStop : handleStart}
+          onPress={isRunning ? ()=>{onPress(); handleStop()} : ()=>{onPress(); handleStart()}}
           activeOpacity={0.8}
         >
           <Text style={[styles.buttonText, styles.startStopText]}>
@@ -90,7 +93,7 @@ export default function StopWatchScreen() {
           {!!displayTime && (
             <TouchableOpacity
               style={[styles.button, styles.secondaryButton]}
-              onPress={handleReset}
+              onPress={()=>{onDelete(); handleReset()}}
               activeOpacity={0.7}
             >
               <Text style={styles.buttonText}>Reset</Text>
@@ -99,7 +102,7 @@ export default function StopWatchScreen() {
           {!!isRunning && (
             <TouchableOpacity
               style={[styles.button, styles.secondaryButton]}
-              onPress={handleLap}
+              onPress={()=>{onPress(); handleLap()}}
               activeOpacity={0.7}
             >
               <Text style={styles.buttonText}>Lap</Text>

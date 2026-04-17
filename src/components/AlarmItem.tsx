@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Toast from 'react-native-toast-message';
 import { getDefaultDate, getIsScheduled, getTimeUntilAlarm } from '../utils/alarmUtils';
-import { useAlarmHaptics } from '../hooks/useAlarmHaptics';
+import { useHaptics } from '../hooks/useHaptics';
 
 type Props = {
   alarm: Alarm;
@@ -21,7 +21,7 @@ export default function AlarmItem({ alarm }: Props) {
     day: 'numeric',
     month: 'long',
   })
-  const { onToggle } = useAlarmHaptics()
+  const { onToggle } = useHaptics()
 
   const handleToggleAlarm = () => {
     const isAlarmPassed = new Date(alarm.date).getTime() < Date.now();
@@ -184,13 +184,13 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontWeight: '700',
     letterSpacing: -1,
-    color: '#1C1C1E',              
+    color: '#1C1C1E',
   },
   period: {
     marginBottom: 6,
     fontSize: 16,
     fontWeight: '500',
-    color: '#6B6B6B',                
+    color: '#6B6B6B',
   },
   label: {
     fontSize: 14,
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
   },
 
   dayBadgeActive: {
-    backgroundColor: '#1C1C1E',        
+    backgroundColor: '#1C1C1E',
   },
   dayBadgeInactive: {
     backgroundColor: 'rgba(28, 28, 30, 0.08)',

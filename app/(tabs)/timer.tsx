@@ -1,9 +1,10 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SetTimer from '../../src/components/SetTimer';
 import TimerItem from '../../src/components/TimerItem';
+import { useHaptics } from '../../src/hooks/useHaptics';
 
 export type TimerKeyboard = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', '⌫']
 export type TimerStatus = 'idle' | 'running' | 'paused' | 'finished';
@@ -19,9 +20,7 @@ export default function TimerScreen() {
   const totalHours = digits[0] * 10 + digits[1]
   const totalMinutes = digits[2] * 10 + digits[3]
   const totalSeconds = digits[4] * 10 + digits[5]
-
-  // Убран setInterval — CountdownCircleTimer сам управляет обратным отсчётом.
-  // Два источника (interval + onUpdate) создавали race condition в timeLeft.
+  const { onHeavyPress, onPress, onSave } = useHaptics()
 
   const start = () => {
     if (!timeLeft) {
@@ -30,13 +29,14 @@ export default function TimerScreen() {
       setTimeSet(totalSec);
       setTimeLeft(totalSec);
       setDigits([0, 0, 0, 0, 0, 0]);
+      onSave()
       setStatus('running');
       return; 
     }
     setStatus('running');
   };
 
-  const pause = () => setStatus('paused');
+  const pause = () => {onPress(); setStatus('paused')};
 
   const stop = () => {
     setStatus('idle');
@@ -49,8 +49,6 @@ export default function TimerScreen() {
     setTimeLeft(timeSet);
   };
 
-  // handleAdd только обновляет timeSet для корректного reset в будущем.
-  // Актуальный initialRemainingTime считается в TimerItem через remainingRef.
   const addTime = () => {
     setTimeSet(prev => prev + 60);
   };
@@ -65,15 +63,18 @@ export default function TimerScreen() {
 
   function handlePress(item: TimerKeyboard[number]) {
     if (item === '⌫') {
+      onHeavyPress()
       setDigits([0, ...digits.slice(0, 5)]);
     } else if (item === '00') {
       if (digits[0] === 0 && digits[1] === 0) {
+        onPress()
         const afterFirst = [...digits.slice(1), 0];
         const afterSecond = [...afterFirst.slice(1), 0];
         setDigits(afterSecond);
       }
     } else {
       if (digits[0] === 0) {
+        onPress()
         setDigits([...digits.slice(1), +item]);
       }
     }

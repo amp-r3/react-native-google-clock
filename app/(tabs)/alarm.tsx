@@ -12,12 +12,14 @@ import { AlarmEmpty } from '../../src/components/AlarmEmpty';
 import SwipeableRow from '../../src/components/SwipeableRow';
 import { Alarm, addAlarm, deleteAlarm } from '../../src/store/alarmSlice';
 import Toast from 'react-native-toast-message';
+import { useHaptics } from '../../src/hooks/useHaptics';
 
 export default function AlarmScreen() {
   const alarms = useSelector((state: RootState) => state.alarm.alarms)
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const dispatch = useDispatch()
+  const { onPress, onSave } = useHaptics()
 
   const removeAlarm = (item: Alarm) => {
     if (item.id) {
@@ -29,6 +31,7 @@ export default function AlarmScreen() {
         visibilityTime: 2500,
         props: {
           onUndo: () => {
+            onSave()
             Toast.hide()
             dispatch(addAlarm(item));
           },
@@ -36,6 +39,7 @@ export default function AlarmScreen() {
       });
     }
   };
+
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -69,7 +73,7 @@ export default function AlarmScreen() {
       <TouchableOpacity
         style={[styles.fab, { bottom: insets.bottom + 16 }]}  
         activeOpacity={0.9}
-        onPress={() => router.push('/add-alarm')}
+        onPress={() => {onPress(); router.push('/add-alarm')}}
       >
         <MaterialCommunityIcons name="plus" size={38}  style={styles.fabIcon} />
       </TouchableOpacity>

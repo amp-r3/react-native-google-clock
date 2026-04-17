@@ -8,6 +8,7 @@ import cityTimezones from 'city-timezones';
 import { addClock, removeClock, selectClocks } from "../src/store/clockSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { getFormattedTime } from "../src/utils/clockUtils";
+import { useHaptics } from "../src/hooks/useHaptics";
 
 const ALL_CITIES = cityTimezones.cityMapping;
 
@@ -40,6 +41,7 @@ export default function AddClockScreen() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const { onToggle, onSelect, onDelete, onSoftPress } = useHaptics();
 
   const handleSearch = useCallback((text: string) => {
     setQuery(text);
@@ -48,10 +50,12 @@ export default function AddClockScreen() {
 
   const handleSelect = useCallback((city: City) => {
     if (clocks.find((c) => c.timezone === city.timezone)) {
-      dispatch(removeClock(city.timezone))
+      onDelete();   
+      dispatch(removeClock(city.timezone));
       navigation.goBack();
-      return
-    };
+      return;
+    }
+    onSelect();     
     dispatch(addClock(city));
     setQuery('');
     setResults([]);
@@ -62,7 +66,7 @@ export default function AddClockScreen() {
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
+          onPress={() => { onToggle(); navigation.goBack() }}
           style={styles.backButton}
         >
           <MaterialCommunityIcons name="arrow-left" size={28} color="#F5F5F5" />
@@ -80,6 +84,7 @@ export default function AddClockScreen() {
           {query.length > 0 && (
             <TouchableOpacity
               onPress={() => {
+                onSoftPress();
                 setQuery('');
                 setResults([]);
               }}

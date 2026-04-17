@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { useRef, useState } from "react";
 import { TimerStatus } from "../../app/(tabs)/timer";
+import { useHaptics } from "../hooks/useHaptics";
 
 interface TimerItemProps {
   timeSet: number;      
@@ -32,6 +33,8 @@ export default function TimerItem({
   onTimeUpdate,
 }: TimerItemProps) {
 
+  const { onDelete, onPress } = useHaptics()
+
   const [key, setKey] = useState(0);
 
   const [localDuration, setLocalDuration] = useState(timeSet);
@@ -49,6 +52,7 @@ export default function TimerItem({
   
     setLocalInitial(newInitial);
     setLocalDuration(newDuration);
+    onPress()
     handleAdd();
     setKey(prev => prev + 1);
   };
@@ -56,13 +60,14 @@ export default function TimerItem({
   const resetTimer = () => {
     setLocalDuration(timeSet);
     setLocalInitial(timeSet);
+    onDelete()
     handleReset(); 
     setKey(prev => prev + 1);
   };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.close} onPress={handleClear} activeOpacity={0.7}>
+      <TouchableOpacity style={styles.close} onPress={()=>{onPress(); handleClear()}} activeOpacity={0.7}>
         <MaterialCommunityIcons name="close" color="#fff" size={20} />
       </TouchableOpacity>
 

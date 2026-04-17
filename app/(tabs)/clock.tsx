@@ -9,6 +9,7 @@ import { formatAlarmLabel, getNearestAlarm } from '../../src/utils/alarmUtils';
 import { Clock, removeClock, selectClocks } from '../../src/store/clockSlice';
 import ClockItem from '../../src/components/ClockItem';
 import SwipeableRow from '../../src/components/SwipeableRow';
+import { useHaptics } from '../../src/hooks/useHaptics';
 
 
 export default function ClockScreen() {
@@ -20,6 +21,7 @@ export default function ClockScreen() {
   const nearest = getNearestAlarm(alarms);
   const nearestDate = nearest ? formatAlarmLabel(nearest.date) : null;
   const dispatch = useDispatch();
+  const { onPress } = useHaptics()
 
   const deleteClock = (item: Clock) => {
     if (item.id) {
@@ -98,7 +100,7 @@ export default function ClockScreen() {
       <TouchableOpacity
         style={[styles.fab, { bottom: insets.bottom + 16 }]}
         activeOpacity={0.9}
-        onPress={() => router.push('/add-clock')}
+        onPress={() => {onPress(); router.push('/add-clock')}}
       >
         <MaterialCommunityIcons name="plus" size={38} style={styles.fabIcon} />
       </TouchableOpacity>

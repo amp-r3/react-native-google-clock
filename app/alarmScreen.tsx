@@ -9,6 +9,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Alarm } from "../src/store/alarmSlice";
 import { useExistingAlarm } from "../src/hooks/useExistingAlarm";
+import { useHaptics } from "../src/hooks/useHaptics";
 
 export default function AlarmScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -29,6 +30,7 @@ export default function AlarmScreen() {
   }
 
   const alarm: Alarm = id ? useExistingAlarm(id) : defaultAlarm
+  const { onSave, onDelete } = useHaptics();
 
   return (
     <View style={styles.root}>
@@ -42,13 +44,14 @@ export default function AlarmScreen() {
       {/* Buttons */}
       <View style={[styles.buttons, { bottom: insets.bottom + 112 }]}>
         <Pressable
+          onPress={() => { onSave(); /* handleSnooze */ }}
           style={({ pressed }) => [styles.btn, styles.btnSnooze, pressed && { opacity: 0.8 }]}
         >
           <Text style={[styles.btnText, styles.btnTextSnooze]}>Snooze</Text>
         </Pressable>
         <Pressable
           style={({ pressed }) => [styles.btn, styles.btnDismiss, pressed && { opacity: 0.8 }]}
-          onPress={router.back}
+          onPress={() => { onDelete(); router.back(); }}
         >
           <Text style={[styles.btnText, styles.btnTextDismiss]}>Dismiss</Text>
         </Pressable>

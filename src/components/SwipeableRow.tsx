@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useAlarmHaptics } from '../hooks/useAlarmHaptics';
+import { useHaptics } from '../hooks/useHaptics';
 
 const SWIPE_THRESHOLD = 110;
 
@@ -25,7 +25,7 @@ export default function SwipeableRow({ children, onRemove }: Props) {
   const opacity = useSharedValue(1);
   const marginBottom = useSharedValue(12);
 
-  const { onDelete } = useAlarmHaptics();
+  const { onDelete } = useHaptics();
 
   const triggerHaptic = useCallback(() => {
     onDelete();
@@ -98,7 +98,7 @@ export default function SwipeableRow({ children, onRemove }: Props) {
   return (
     <Animated.View style={containerStyle}>
       <View style={styles.clipper}>
-        
+
         <View style={styles.backdrop}>
           <Animated.View style={[styles.iconContainer, leftIconStyle]}>
             <MaterialCommunityIcons name="trash-can-outline" size={28} color={MD3Colors.onErrorContainer} />
@@ -121,7 +121,7 @@ export default function SwipeableRow({ children, onRemove }: Props) {
             {children}
           </Animated.View>
         </GestureDetector>
-        
+
       </View>
     </Animated.View>
   );
@@ -129,7 +129,7 @@ export default function SwipeableRow({ children, onRemove }: Props) {
 
 const MD3Colors = {
   errorContainer: '#93000A',
-  onErrorContainer: '#FFDAD6', 
+  onErrorContainer: '#FFDAD6',
 };
 
 const styles = StyleSheet.create({
