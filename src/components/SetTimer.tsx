@@ -8,7 +8,7 @@ interface SetTimerProps {
   minutes: number;
   seconds: number;
   numbsArr: TimerKeyboard;
-  handlePress: (timerKeyboard)=> void;
+  handlePress: (item: TimerKeyboard[number]) => void;
   handleStart: ()=> void;
 }
 

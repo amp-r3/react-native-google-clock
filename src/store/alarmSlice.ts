@@ -9,7 +9,7 @@ export interface Alarm {
   days: days[];
   options: AlarmOptions;
   enabled: boolean;
-  date: string;
+  date: string | null;
 }
 
 export type days = 'Mo' | 'Tu' | 'We' | 'Th' | 'Fr' | 'Sa' | 'Su'

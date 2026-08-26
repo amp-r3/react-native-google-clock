@@ -19,7 +19,7 @@ export default function ClockScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const nearest = getNearestAlarm(alarms);
-  const nearestDate = nearest ? formatAlarmLabel(nearest.date) : null;
+  const nearestDate = nearest?.date ? formatAlarmLabel(nearest.date) : null;
   const dispatch = useDispatch();
   const { onPress } = useHaptics()
 

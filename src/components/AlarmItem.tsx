@@ -16,15 +16,14 @@ const DAYS: days[] = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as const;
 export default function AlarmItem({ alarm }: Props) {
   const enabled = alarm.enabled
   const dispatch = useDispatch()
-  const isScheduled = getIsScheduled(new Date(alarm.date)) && alarm.days.length < 1;
-  const scheduledText = new Date(alarm.date).toLocaleDateString('en-US', {
-    day: 'numeric',
-    month: 'long',
-  })
+  const isScheduled = alarm.date !== null && getIsScheduled(new Date(alarm.date)) && alarm.days.length < 1;
+  const scheduledText = alarm.date
+    ? new Date(alarm.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long' })
+    : '';
   const { onToggle } = useHaptics()
 
   const handleToggleAlarm = () => {
-    const isAlarmPassed = new Date(alarm.date).getTime() < Date.now();
+    const isAlarmPassed = alarm.date !== null && new Date(alarm.date).getTime() < Date.now();
 
     if (isAlarmPassed && !enabled) {
       const newDate = getDefaultDate(alarm.time, alarm.period);
@@ -51,7 +50,7 @@ export default function AlarmItem({ alarm }: Props) {
     } else if (alarm.date || alarm.days.length > 0) {
       dispatch(enableAlarm({ id: alarm.id }));
 
-      if (!enabled) {
+      if (!enabled && alarm.date) {
         Toast.show({
           type: 'info',
           text1: getTimeUntilAlarm(alarm.date),

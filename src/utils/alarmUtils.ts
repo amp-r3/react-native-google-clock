@@ -171,8 +171,8 @@ export function getNearestAlarm(alarms: Alarm[]): Alarm | null {
   const now = Date.now();
 
   return activeAlarms.reduce((closest, alarm) => {
-    const alarmTime   = new Date(alarm.date).getTime();
-    const closestTime = new Date(closest.date).getTime();
+    const alarmTime   = alarm.date ? new Date(alarm.date).getTime() : Infinity;
+    const closestTime = closest.date ? new Date(closest.date).getTime() : Infinity;
 
     const diffAlarm   = alarmTime - now;
     const diffClosest = closestTime - now;

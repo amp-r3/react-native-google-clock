@@ -60,12 +60,12 @@ export function useAlarmForm({ id, onSuccess }: UseAlarmFormParams) {
     setLabel(existingAlarm.label ?? 'Alarm');
     setPeriod(existingAlarm.period ?? initial.period);
     setTime(existingAlarm.time ?? initial.time);
-    setIsScheduled(getIsScheduled(new Date(existingAlarm.date)))
+    setIsScheduled(existingAlarm.date ? getIsScheduled(new Date(existingAlarm.date)) : false)
     setAlarmOptions({
       vibration: existingAlarm.options?.vibration ?? true,
       weather: existingAlarm.options?.weather ?? false,
     });
-    setDate(existingAlarm.days?.length ? undefined : existingAlarm.date);
+    setDate(existingAlarm.days?.length ? undefined : existingAlarm.date ?? undefined);
   }, [existingAlarm, initial.period, initial.time]);
 
   const handleDateSelection = (selectedDate: Date) => {
@@ -147,7 +147,7 @@ export function useAlarmForm({ id, onSuccess }: UseAlarmFormParams) {
       date: date ? new Date(date) : null,
     });
 
-    const finalDate = result.isoDate ?? date;
+    const finalDate = result.isoDate ?? date ?? null;
     const enabled = !!finalDate || selectedDays.length > 0;
 
     if (finalDate) {
@@ -197,7 +197,8 @@ export function useAlarmForm({ id, onSuccess }: UseAlarmFormParams) {
   };
 
   const handleDelete = () => {
-    if (id) {
+    if (id && existingAlarm) {
+      const removedAlarm = existingAlarm;
       dispatch(deleteAlarm({ id }));
       Toast.show({
         type: 'info',
@@ -207,7 +208,7 @@ export function useAlarmForm({ id, onSuccess }: UseAlarmFormParams) {
         props: {
           onUndo: () => {
             Toast.hide()
-            dispatch(addAlarm(existingAlarm));
+            dispatch(addAlarm(removedAlarm));
           },
         },
       });
