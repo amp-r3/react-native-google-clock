@@ -29,7 +29,8 @@ export default function AlarmScreen() {
     }
   }
 
-  const alarm: Alarm = id ? useExistingAlarm(id) : defaultAlarm
+  const existingAlarm = useExistingAlarm(id);
+  const alarm: Alarm = existingAlarm ?? defaultAlarm;
   const { onSave, onDelete } = useHaptics();
 
   return (
