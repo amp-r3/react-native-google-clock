@@ -157,6 +157,13 @@ export function useAlarmForm({ id, onSuccess }: UseAlarmFormParams) {
         position: 'bottom',
         visibilityTime: 2500,
       });
+    } else if (selectedDays.length === 0) {
+      Toast.show({
+        type: 'error',
+        text1: 'Set a date or repeat days first',
+        position: 'bottom',
+        visibilityTime: 2000,
+      });
     }
 
     if (isEditing && id) {
