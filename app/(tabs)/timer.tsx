@@ -2,9 +2,11 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import SetTimer from '../../src/components/SetTimer';
 import TimerItem from '../../src/components/TimerItem';
 import { useHaptics } from '../../src/hooks/useHaptics';
+import { formatDuration } from '../../src/utils/timeFormat';
 
 export type TimerKeyboard = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', '⌫']
 export type TimerStatus = 'idle' | 'running' | 'paused' | 'finished';
@@ -13,25 +15,39 @@ const numbsArr: TimerKeyboard = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0
 
 export default function TimerScreen() {
   const insets = useSafeAreaInsets();
-  const [timeSet, setTimeSet] = useState<number | null>(null)
+  // initialDuration is the reset baseline (what the user originally typed).
+  // duration is the current total used for the progress ring — grows with "+1:00".
+  const [initialDuration, setInitialDuration] = useState<number | null>(null);
+  const [duration, setDuration] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [status, setStatus] = useState<TimerStatus>('idle');
+  const [remountKey, setRemountKey] = useState(0);
   const [digits, setDigits] = useState([0, 0, 0, 0, 0, 0]);
   const totalHours = digits[0] * 10 + digits[1]
   const totalMinutes = digits[2] * 10 + digits[3]
   const totalSeconds = digits[4] * 10 + digits[5]
-  const { onHeavyPress, onPress, onSave } = useHaptics()
+  const { onHeavyPress, onPress, onSave, onError } = useHaptics()
 
   const start = () => {
-    if (!timeLeft) {
+    if (timeLeft === null) {
       const totalSec = digitsToSec(digits);
-      if (totalSec === 0) return;
-      setTimeSet(totalSec);
+      if (totalSec === 0) {
+        onError();
+        Toast.show({
+          type: 'error',
+          text1: 'Set a time first',
+          position: 'bottom',
+          visibilityTime: 2000,
+        });
+        return;
+      }
+      setInitialDuration(totalSec);
+      setDuration(totalSec);
       setTimeLeft(totalSec);
       setDigits([0, 0, 0, 0, 0, 0]);
       onSave()
       setStatus('running');
-      return; 
+      return;
     }
     setStatus('running');
   };
@@ -41,16 +57,21 @@ export default function TimerScreen() {
   const stop = () => {
     setStatus('idle');
     setTimeLeft(null);
-    setTimeSet(null);
+    setDuration(null);
+    setInitialDuration(null);
   };
 
   const reset = () => {
     setStatus('paused');
-    setTimeLeft(timeSet);
+    setDuration(initialDuration);
+    setTimeLeft(initialDuration);
+    setRemountKey(prev => prev + 1);
   };
 
   const addTime = () => {
-    setTimeSet(prev => prev + 60);
+    setDuration(prev => (prev ?? 0) + 60);
+    setTimeLeft(prev => (prev ?? 0) + 60);
+    setRemountKey(prev => prev + 1);
   };
 
   const finish = () => {
@@ -88,16 +109,7 @@ export default function TimerScreen() {
   }
 
   function formatTime(totalSec: number): string {
-    const seconds = Math.floor(totalSec % 60);
-    const hours = Math.floor(totalSec / 3600);
-    const minutes = Math.floor((totalSec % 3600) / 60);
-    return [
-      hours.toString().padStart(2, '0'),
-      ':',
-      minutes.toString().padStart(2, '0'),
-      ':',
-      seconds.toString().padStart(2, '0'),
-    ].join('');
+    return formatDuration(totalSec * 1000, { showHours: true });
   }
 
   return (
@@ -118,10 +130,11 @@ export default function TimerScreen() {
             handlePress={handlePress}
             handleStart={start}
           />
-        ) : (
+        ) : duration !== null && timeLeft !== null ? (
           <TimerItem
             timeLeft={timeLeft}
-            timeSet={timeSet}
+            duration={duration}
+            remountKey={remountKey}
             handleClear={stop}
             formatTime={formatTime}
             handleStop={pause}
@@ -132,7 +145,7 @@ export default function TimerScreen() {
             onTimeUpdate={handleTimeUpdate}
             status={status}
           />
-        )}
+        ) : null}
       </View>
     </View>
   );

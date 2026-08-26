@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Clock } from '../store/clockSlice';
 import { getFormattedTime, getTimeDiff } from '../utils/clockUtils';
+import { to12Hour } from '../utils/timeFormat';
 
 
 
@@ -15,9 +16,8 @@ export default function ClockItem({ item }: { item: Clock }) {
   }, [item.timezone]);
 
   const [h, m] = time.split(':');
-  const hour = parseInt(h, 10);
-  const ampm = hour >= 12 ? 'PM' : 'AM';
-  const display12 = `${String(hour % 12 || 12).padStart(2, '0')}:${m}`;
+  const { hours12, period: ampm } = to12Hour(parseInt(h, 10));
+  const display12 = `${String(hours12).padStart(2, '0')}:${m}`;
 
 
   return (

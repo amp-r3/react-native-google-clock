@@ -1,5 +1,6 @@
 import { useRef, useState, useCallback, useMemo } from 'react';
 import { LapData } from '../types/stopwatch';
+import { formatDuration } from '../utils/timeFormat';
 
 export interface UseStopwatchReturn {
   displayTime: number;
@@ -23,19 +24,7 @@ export function useStopwatch(): UseStopwatchReturn {
   const [laps, setLaps] = useState<number[]>([]);
 
   const formatTime = useCallback((ms: number): string => {
-    const totalCs = Math.floor(ms / 10);
-    const cs = totalCs % 100;
-    const totalSec = Math.floor(ms / 1000);
-    const seconds = totalSec % 60;
-    const minutes = Math.floor(totalSec / 60);
-
-    return [
-      minutes.toString().padStart(2, '0'),
-      ':',
-      seconds.toString().padStart(2, '0'),
-      '.',
-      cs.toString().padStart(2, '0'),
-    ].join('');
+    return formatDuration(ms, { centiseconds: true });
   }, []);
 
   const handleStart = useCallback(() => {

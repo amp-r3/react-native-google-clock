@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import { useStopwatch } from "../hooks/useStopwatch";
+import { formatDuration } from "../utils/timeFormat";
 
 
 interface LapItemProps {
@@ -10,13 +10,11 @@ interface LapItemProps {
 }
 
 export default function LapItem({ order, startMs, finishMs, isActive }: LapItemProps) {
-  const { formatTime } = useStopwatch();
-
   return (
     <View style={[styles.lapContainer, isActive && styles.lapContainerActive]}>
       <Text style={styles.lapOrder}>{order.toString().padStart(2, '0')}</Text>
-      <Text style={styles.lapStart}>{formatTime(startMs)}</Text>
-      <Text style={styles.lapFinish}>{formatTime(finishMs)}</Text>
+      <Text style={styles.lapStart}>{formatDuration(startMs, { centiseconds: true })}</Text>
+      <Text style={styles.lapFinish}>{formatDuration(finishMs, { centiseconds: true })}</Text>
     </View>
   );
 }

@@ -1,13 +1,13 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
-import { useRef, useState } from "react";
 import { TimerStatus } from "../../app/(tabs)/timer";
 import { useHaptics } from "../hooks/useHaptics";
 
 interface TimerItemProps {
-  timeSet: number;      
-  timeLeft: number;       
+  duration: number;
+  timeLeft: number;
+  remountKey: number;
   formatTime: (seconds: number) => string;
   handleClear: () => void;
   handleStop: () => void;
@@ -20,8 +20,9 @@ interface TimerItemProps {
 }
 
 export default function TimerItem({
-  timeSet,
+  duration,
   timeLeft,
+  remountKey,
   status,
   formatTime,
   handleClear,
@@ -35,35 +36,7 @@ export default function TimerItem({
 
   const { onDelete, onPress } = useHaptics()
 
-  const [key, setKey] = useState(0);
-
-  const [localDuration, setLocalDuration] = useState(timeSet);
-  const [localInitial, setLocalInitial] = useState(timeLeft);
-
-  const remainingRef = useRef(timeLeft);
-
   const isPlaying = status === 'running';
-
-  const addTimer = () => {
-    const newInitial = remainingRef.current + 60;
-    const newDuration = localDuration + 60;
-  
-    remainingRef.current = newInitial;  
-  
-    setLocalInitial(newInitial);
-    setLocalDuration(newDuration);
-    onPress()
-    handleAdd();
-    setKey(prev => prev + 1);
-  };
-
-  const resetTimer = () => {
-    setLocalDuration(timeSet);
-    setLocalInitial(timeSet);
-    onDelete()
-    handleReset(); 
-    setKey(prev => prev + 1);
-  };
 
   return (
     <View style={styles.container}>
@@ -73,20 +46,17 @@ export default function TimerItem({
 
       <View style={styles.middle}>
         <CountdownCircleTimer
-          key={key}
+          key={remountKey}
           isPlaying={isPlaying}
-          duration={localDuration}
-          initialRemainingTime={localInitial}
+          duration={duration}
+          initialRemainingTime={timeLeft}
           size={300}
           strokeWidth={14}
           colors="#ffffff"
           trailColor="#333333"
           rotation="clockwise"
           updateInterval={0.001}
-          onUpdate={(t) => {
-            remainingRef.current = t;
-            onTimeUpdate(t);
-          }}
+          onUpdate={(t) => onTimeUpdate(t)}
           onComplete={() => {
             handleFinish();
             return { shouldRepeat: false };
@@ -95,8 +65,8 @@ export default function TimerItem({
           {({ remainingTime }) => (
             <View style={styles.timeContainer}>
               <Text style={styles.time}>{formatTime(remainingTime)}</Text>
-              
-              <TouchableOpacity style={styles.reset} onPress={resetTimer} activeOpacity={0.7}>
+
+              <TouchableOpacity style={styles.reset} onPress={() => { onDelete(); handleReset(); }} activeOpacity={0.7}>
                 <MaterialCommunityIcons name="restart" color="#fff" size={38} />
               </TouchableOpacity>
             </View>
@@ -105,19 +75,19 @@ export default function TimerItem({
       </View>
 
       <View style={styles.bottom}>
-        <TouchableOpacity style={styles.addTime} onPress={addTimer}>
+        <TouchableOpacity style={styles.addTime} onPress={() => { onPress(); handleAdd(); }}>
           <Text style={styles.addTimeText}>+1:00</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.pause} 
+        <TouchableOpacity
+          style={styles.pause}
           onPress={status === 'running' ? handleStop : handleStart}
           activeOpacity={0.8}
         >
-          <MaterialCommunityIcons 
-            name={status === 'running' ? 'pause' : 'play'} 
-            color="#121212" 
-            size={32} 
+          <MaterialCommunityIcons
+            name={status === 'running' ? 'pause' : 'play'}
+            color="#121212"
+            size={32}
           />
         </TouchableOpacity>
       </View>

@@ -7,6 +7,7 @@ import { Platform } from "react-native";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import type { ComponentProps } from 'react';
 import { getDefaultDate, getIsScheduled, getNextAlarmDay, getTimeUntilAlarm } from "../utils/alarmUtils";
+import { to12Hour } from "../utils/timeFormat";
 import Toast from 'react-native-toast-message';
 
 type OnChange = NonNullable<ComponentProps<typeof DateTimePicker>['onChange']>;
@@ -21,9 +22,7 @@ const getDefaultDateTime = (): { time: string; period: 'AM' | 'PM'; date: string
   const next = new Date(now);
   next.setHours(now.getHours() + 1, 0, 0, 0);
 
-  const hours24 = next.getHours();
-  const period = hours24 >= 12 ? 'PM' : 'AM';
-  const hours12 = hours24 % 12 || 12;
+  const { hours12, period } = to12Hour(next.getHours());
 
   return {
     time: `${hours12}:00`,
@@ -109,10 +108,8 @@ export function useAlarmForm({ id, onSuccess }: UseAlarmFormParams) {
     if (Platform.OS === 'android') setShowTimePicker(false);
 
     if (selectedDate) {
-      const hours24 = selectedDate.getHours();
       const minutes = selectedDate.getMinutes();
-      const currentPeriod = hours24 >= 12 ? 'PM' : 'AM';
-      const hours12 = hours24 % 12 || 12;
+      const { hours12, period: currentPeriod } = to12Hour(selectedDate.getHours());
       const displayMinutes = String(minutes).padStart(2, '0');
       const newTime = `${hours12}:${displayMinutes}`;
 
