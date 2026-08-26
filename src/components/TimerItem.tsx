@@ -1,8 +1,11 @@
+import { useMemo } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { TimerStatus } from "../../app/(tabs)/timer";
 import { useHaptics } from "../hooks/useHaptics";
+import { useTheme } from "../theme/ThemeProvider";
+import { ThemeColors } from "../theme/colors";
 
 interface TimerItemProps {
   duration: number;
@@ -35,13 +38,15 @@ export default function TimerItem({
 }: TimerItemProps) {
 
   const { onDelete, onPress } = useHaptics()
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const isPlaying = status === 'running';
 
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.close} onPress={()=>{onPress(); handleClear()}} activeOpacity={0.7}>
-        <MaterialCommunityIcons name="close" color="#fff" size={20} />
+        <MaterialCommunityIcons name="close" color={colors.textPrimary} size={20} />
       </TouchableOpacity>
 
       <View style={styles.middle}>
@@ -52,8 +57,8 @@ export default function TimerItem({
           initialRemainingTime={timeLeft}
           size={300}
           strokeWidth={14}
-          colors="#ffffff"
-          trailColor="#333333"
+          colors={colors.accent as `#${string}`}
+          trailColor={colors.surfaceSecondary as `#${string}`}
           rotation="clockwise"
           updateInterval={0.001}
           onUpdate={(t) => onTimeUpdate(t)}
@@ -67,7 +72,7 @@ export default function TimerItem({
               <Text style={styles.time}>{formatTime(remainingTime)}</Text>
 
               <TouchableOpacity style={styles.reset} onPress={() => { onDelete(); handleReset(); }} activeOpacity={0.7}>
-                <MaterialCommunityIcons name="restart" color="#fff" size={38} />
+                <MaterialCommunityIcons name="restart" color={colors.textPrimary} size={38} />
               </TouchableOpacity>
             </View>
           )}
@@ -86,7 +91,7 @@ export default function TimerItem({
         >
           <MaterialCommunityIcons
             name={status === 'running' ? 'pause' : 'play'}
-            color="#121212"
+            color={colors.background}
             size={32}
           />
         </TouchableOpacity>
@@ -95,15 +100,15 @@ export default function TimerItem({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
-    backgroundColor: '#1F1F1F',
+    backgroundColor: colors.surface,
     padding: 20,
     borderRadius: 20,
   },
   close: {
     alignSelf: 'flex-end',
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: colors.surfaceSecondary,
     width: 30,
     height: 30,
     borderRadius: 999,
@@ -120,7 +125,7 @@ const styles = StyleSheet.create({
   },
   time: {
     fontSize: 55,
-    color: '#fff',
+    color: colors.textPrimary,
     fontWeight: '500',
   },
   reset: {
@@ -135,7 +140,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   addTime: {
-    backgroundColor: '#282828',
+    backgroundColor: colors.surfaceSecondary,
     width: 130,
     height: 90,
     borderRadius: 48,
@@ -145,10 +150,10 @@ const styles = StyleSheet.create({
   addTimeText: {
     fontWeight: '600',
     fontSize: 22,
-    color: '#fff',
+    color: colors.textPrimary,
   },
   pause: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.accent,
     width: 130,
     height: 90,
     borderRadius: 48,

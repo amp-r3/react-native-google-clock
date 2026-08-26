@@ -6,12 +6,15 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
+import { useMemo, useRef, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStopwatch } from '../../src/hooks/useStopwatch';
 import { FlatList } from 'react-native-gesture-handler';
 import LapItem from '../../src/components/LapItem';
-import { useRef } from 'react';
 import { useHaptics } from '../../src/hooks/useHaptics';
+import { useTheme } from '../../src/theme/ThemeProvider';
+import { ThemeColors } from '../../src/theme/colors';
+import OverflowMenu from '../../src/components/OverflowMenu';
 
 export default function StopWatchScreen() {
   const insets = useSafeAreaInsets();
@@ -27,18 +30,23 @@ export default function StopWatchScreen() {
   } = useStopwatch();
 
   const {onPress,  onDelete} = useHaptics()
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   const flatListRef = useRef<FlatList>(null);
-  
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
 
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Stopwatch</Text>
-        <TouchableOpacity>
-          <MaterialCommunityIcons name="dots-vertical" size={24} color="#fff" />
+        <TouchableOpacity onPress={() => { onPress(); setMenuVisible(true); }}>
+          <MaterialCommunityIcons name="dots-vertical" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
+
+      <OverflowMenu visible={menuVisible} onClose={() => setMenuVisible(false)} />
 
       <View style={styles.timerContainer}>
         <Text
@@ -114,10 +122,10 @@ export default function StopWatchScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F0F0F',
+    backgroundColor: colors.background,
   },
 
   header: {
@@ -126,18 +134,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#0F0F0F',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
+    backgroundColor: colors.background,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
     letterSpacing: -0.5,
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
   timerContainer: {
     letterSpacing: 0.2,
@@ -147,7 +150,7 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
   },
   timerText: {
-    color: '#fff',
+    color: colors.textPrimary,
     fontSize: 80,
     fontWeight: '700',
     letterSpacing: -2,
@@ -158,7 +161,7 @@ const styles = StyleSheet.create({
     }),
   },
   timerTextDisabled: {
-    color: '#bababa',
+    color: colors.textSecondary,
     fontSize: 80,
     fontWeight: '700',
     letterSpacing: -2,
@@ -198,20 +201,20 @@ const styles = StyleSheet.create({
   },
   stopButton: {
     borderRadius: 22,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: colors.danger,
   },
   startButton: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: colors.accent,
   },
   secondaryButton: {
     paddingVertical: 35,
-    backgroundColor: '#2b2b2b',
+    backgroundColor: colors.surfaceSecondary,
   },
   startStopText: {
-    color: '#1C1C1E'
+    color: colors.background,
   },
   buttonText: {
-    color: '#fff',
+    color: colors.textPrimary,
     fontSize: 18,
     fontWeight: '400',
     letterSpacing: 0.2,

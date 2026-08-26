@@ -1,5 +1,8 @@
+import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { formatDuration } from "../utils/timeFormat";
+import { useTheme } from "../theme/ThemeProvider";
+import { ThemeColors } from "../theme/colors";
 
 
 interface LapItemProps {
@@ -10,6 +13,9 @@ interface LapItemProps {
 }
 
 export default function LapItem({ order, startMs, finishMs, isActive }: LapItemProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <View style={[styles.lapContainer, isActive && styles.lapContainerActive]}>
       <Text style={styles.lapOrder}>{order.toString().padStart(2, '0')}</Text>
@@ -19,25 +25,25 @@ export default function LapItem({ order, startMs, finishMs, isActive }: LapItemP
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   lapContainer: {
-    borderColor: 'rgba(240,240,240, 0.15)',
+    borderColor: colors.border,
     borderWidth: 2,
     borderRadius: 18,
     padding: 15,
     gap: 2,
   },
   lapContainerActive: {
-    borderColor: 'rgba(255,255,255, 0.4)',
+    borderColor: colors.accent,
   },
   lapOrder: {
-    color: '#8E8E93',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   lapStart: {
-    color: '#fff'
+    color: colors.textPrimary,
   },
   lapFinish: {
-    color: '#8E8E93'
+    color: colors.textSecondary,
   },
 })

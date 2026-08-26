@@ -2,6 +2,7 @@ import {
   View, Text, FlatList,
   TouchableOpacity, StyleSheet
 } from 'react-native';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -13,6 +14,9 @@ import SwipeableRow from '../../src/components/SwipeableRow';
 import { Alarm, addAlarm, deleteAlarm } from '../../src/store/alarmSlice';
 import Toast from 'react-native-toast-message';
 import { useHaptics } from '../../src/hooks/useHaptics';
+import { useTheme } from '../../src/theme/ThemeProvider';
+import { ThemeColors } from '../../src/theme/colors';
+import OverflowMenu from '../../src/components/OverflowMenu';
 
 export default function AlarmScreen() {
   const alarms = useSelector((state: RootState) => state.alarm.alarms)
@@ -20,6 +24,9 @@ export default function AlarmScreen() {
   const insets = useSafeAreaInsets();
   const dispatch = useDispatch()
   const { onPress, onSave } = useHaptics()
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   const removeAlarm = (item: Alarm) => {
     if (item.id) {
@@ -43,15 +50,17 @@ export default function AlarmScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-  
+
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Alarms</Text>
-        <TouchableOpacity>
-          <MaterialCommunityIcons name="dots-vertical" size={24} color="#FFFFFF" />
+        <TouchableOpacity onPress={() => { onPress(); setMenuVisible(true); }}>
+          <MaterialCommunityIcons name="dots-vertical" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
-  
+
+      <OverflowMenu visible={menuVisible} onClose={() => setMenuVisible(false)} />
+
       {alarms.length < 1 ? (
         <AlarmEmpty />
       ) : (
@@ -68,24 +77,24 @@ export default function AlarmScreen() {
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         />
       )}
-  
+
       {/* FAB */}
       <TouchableOpacity
-        style={[styles.fab, { bottom: insets.bottom + 16 }]}  
+        style={[styles.fab, { bottom: insets.bottom + 16 }]}
         activeOpacity={0.9}
         onPress={() => {onPress(); router.push('/add-alarm')}}
       >
         <MaterialCommunityIcons name="plus" size={38}  style={styles.fabIcon} />
       </TouchableOpacity>
-  
+
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F0F0F',          
+    backgroundColor: colors.background,
   },
 
   header: {
@@ -94,34 +103,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#0F0F0F',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
+    backgroundColor: colors.background,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
     letterSpacing: -0.5,
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
 
   list: {
     paddingHorizontal: 16,
-    paddingBottom: 100,                   
+    paddingBottom: 100,
     paddingTop: 8,
   },
 
   fab: {
     position: 'absolute',
     right: 24,
-    bottom: 24,                     
+    bottom: 24,
     width: 86,
     height: 86,
-    borderRadius: 22,                  
-    backgroundColor: '#FFFFFF',        
+    borderRadius: 22,
+    backgroundColor: colors.accent,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -131,6 +135,6 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   fabIcon: {
-    color: '#636363',
+    color: colors.background,
   },
 });

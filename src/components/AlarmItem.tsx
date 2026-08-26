@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
 import { Alarm, days, editAlarm, enableAlarm } from "../store/alarmSlice";
 import { useDispatch } from "react-redux";
@@ -6,6 +7,8 @@ import * as Haptics from 'expo-haptics';
 import Toast from 'react-native-toast-message';
 import { getDefaultDate, getIsScheduled, getTimeUntilAlarm } from '../utils/alarmUtils';
 import { useHaptics } from '../hooks/useHaptics';
+import { useTheme } from '../theme/ThemeProvider';
+import { ThemeColors } from '../theme/colors';
 
 type Props = {
   alarm: Alarm;
@@ -21,6 +24,8 @@ export default function AlarmItem({ alarm }: Props) {
     ? new Date(alarm.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long' })
     : '';
   const { onToggle } = useHaptics()
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const handleToggleAlarm = () => {
     const isAlarmPassed = alarm.date !== null && new Date(alarm.date).getTime() < Date.now();
@@ -98,7 +103,7 @@ export default function AlarmItem({ alarm }: Props) {
             <Text
               style={[
                 styles.scheduledText,
-                enabled ? { color: '#1C1C1E' } : { color: '#FFFFFF' }
+                { color: enabled ? colors.cardActiveText : colors.cardInactiveText }
               ]}
             >
               {`Scheduled for ${scheduledText}`}
@@ -139,8 +144,8 @@ export default function AlarmItem({ alarm }: Props) {
           handleToggleAlarm();
         }}
         trackColor={{
-          false: enabled ? '#C8C8C8' : '#3A3A3C',
-          true: enabled ? '#1C1C1E' : '#636366'
+          false: enabled ? '#C8C8C8' : colors.border,
+          true: enabled ? colors.cardActiveText : '#636366'
         }}
         thumbColor={enabled ? '#FFFFFF' : '#9E9E9E'}
         style={{ transform: [{ scaleX: 1.4 }, { scaleY: 1.4 }] }}
@@ -149,12 +154,12 @@ export default function AlarmItem({ alarm }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#F0F0F0',
+    backgroundColor: colors.cardActive,
     borderRadius: 20,
     padding: 20,
     shadowColor: '#000',
@@ -164,7 +169,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   cardDisabled: {
-    backgroundColor: '#212121',
+    backgroundColor: colors.cardInactive,
     shadowOpacity: 0.08,
     elevation: 2,
   },
@@ -183,21 +188,21 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontWeight: '700',
     letterSpacing: -1,
-    color: '#1C1C1E',
+    color: colors.cardActiveText,
   },
   period: {
     marginBottom: 6,
     fontSize: 16,
     fontWeight: '500',
-    color: '#6B6B6B',
+    color: colors.cardActiveTextMuted,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1C1C1E',
+    color: colors.cardActiveText,
   },
   textDisabled: {
-    color: '#FFFFFF',
+    color: colors.cardInactiveText,
     fontWeight: '400',
   },
 
@@ -221,7 +226,7 @@ const styles = StyleSheet.create({
   },
 
   dayBadgeActive: {
-    backgroundColor: '#1C1C1E',
+    backgroundColor: colors.cardActiveText,
   },
   dayBadgeInactive: {
     backgroundColor: 'rgba(28, 28, 30, 0.08)',
@@ -240,7 +245,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
   dayTextActive: {
-    color: '#FFFFFF',
+    color: colors.cardActive,
   },
   dayTextInactive: {
     color: 'rgba(28,28,30,0.45)',

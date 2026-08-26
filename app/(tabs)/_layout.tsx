@@ -10,9 +10,11 @@ import {
   LayoutChangeEvent,
   Easing,
 } from "react-native";
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useMemo } from "react";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { TabActions } from "@react-navigation/native";
+import { useTheme } from "../../src/theme/ThemeProvider";
+import { ThemeColors } from "../../src/theme/colors";
 
 type IconName = React.ComponentProps<typeof MaterialCommunityIcons>["name"];
 
@@ -25,6 +27,8 @@ const TABS = [
 
 function AnimatedTabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const tabLayouts = useRef<{ x: number; width: number }[]>([]);
   const pillX = useRef(new Animated.Value(0)).current;
   const pillWidth = useRef(new Animated.Value(0)).current;
@@ -116,12 +120,12 @@ function AnimatedTabBar({ state, navigation }: BottomTabBarProps) {
             <MaterialCommunityIcons
               name={tab.icon as IconName}
               size={24}
-              color={isActive ? "#FFFFFF" : "#A0A0A0"}
+              color={isActive ? colors.textPrimary : colors.textSecondary}
             />
             <Text
               style={[
                 styles.label,
-                { color: isActive ? "#FFFFFF" : "#A0A0A0" },
+                { color: isActive ? colors.textPrimary : colors.textSecondary },
               ]}
             >
               {tab.title}
@@ -133,12 +137,12 @@ function AnimatedTabBar({ state, navigation }: BottomTabBarProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   tabBar: {
     flexDirection: "row",
-    backgroundColor: "#1F1F1F",
+    backgroundColor: colors.surface,
     borderTopWidth: 0.5,
-    borderTopColor: "rgba(255,255,255,0.08)",
+    borderTopColor: colors.border,
     paddingHorizontal: 8,
     paddingTop: 8,
     shadowColor: "#000",
@@ -153,9 +157,9 @@ const styles = StyleSheet.create({
     top: 8,
     height: 58,
     borderRadius: 99,
-    backgroundColor: "rgba(255,255,255,0.18)",
+    backgroundColor: colors.surfaceSecondary,
     borderWidth: 0.5,
-    borderColor: "rgba(255,255,255,0.12)",
+    borderColor: colors.border,
   },
 
   tab: {

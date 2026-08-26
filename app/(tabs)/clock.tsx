@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,6 +10,9 @@ import { Clock, removeClock, selectClocks } from '../../src/store/clockSlice';
 import ClockItem from '../../src/components/ClockItem';
 import SwipeableRow from '../../src/components/SwipeableRow';
 import { useHaptics } from '../../src/hooks/useHaptics';
+import { useTheme } from '../../src/theme/ThemeProvider';
+import { ThemeColors } from '../../src/theme/colors';
+import OverflowMenu from '../../src/components/OverflowMenu';
 
 
 export default function ClockScreen() {
@@ -22,6 +25,9 @@ export default function ClockScreen() {
   const nearestDate = nearest?.date ? formatAlarmLabel(nearest.date) : null;
   const dispatch = useDispatch();
   const { onPress } = useHaptics()
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   const deleteClock = (item: Clock) => {
     if (item.id) {
@@ -56,10 +62,12 @@ export default function ClockScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Clocks</Text>
-        <TouchableOpacity>
-          <MaterialCommunityIcons name="dots-vertical" size={24} color="#F5F5F5" />
+        <TouchableOpacity onPress={() => { onPress(); setMenuVisible(true); }}>
+          <MaterialCommunityIcons name="dots-vertical" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
+
+      <OverflowMenu visible={menuVisible} onClose={() => setMenuVisible(false)} />
 
       <View style={styles.timeContainer}>
         <Text style={styles.time}>{formattedTime}</Text>
@@ -70,7 +78,7 @@ export default function ClockScreen() {
         <Text style={styles.date}>{date}</Text>
         {nearestDate && (
           <View style={styles.nearestAlarmContainer}>
-            <MaterialCommunityIcons name="alarm" size={24} color="#9E9E9E" />
+            <MaterialCommunityIcons name="alarm" size={24} color={colors.textSecondary} />
             <Text style={styles.nearestAlarm}>{nearestDate}</Text>
           </View>
         )}
@@ -92,8 +100,8 @@ export default function ClockScreen() {
               )}
             />
           </View> :
-          <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-            <Text style={{ fontSize: 44, color: '#AAAAAA', textAlign: 'center' }}>No cities selected</Text>
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>No cities selected</Text>
           </View>
       }
 
@@ -108,10 +116,10 @@ export default function ClockScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F0F0F',
+    backgroundColor: colors.background,
   },
 
   header: {
@@ -120,18 +128,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#0F0F0F',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
+    backgroundColor: colors.background,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
     letterSpacing: -0.5,
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
 
   timeContainer: {
@@ -142,13 +145,13 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
   },
   time: {
-    color: '#F5F5F5',
+    color: colors.textPrimary,
     fontSize: 88,
     fontWeight: '700',
     letterSpacing: -4,
   },
   period: {
-    color: '#9E9E9E',
+    color: colors.textSecondary,
     fontSize: 32,
     paddingBottom: 14,
     fontWeight: '600',
@@ -162,7 +165,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   date: {
-    color: '#F5F5F5',
+    color: colors.textPrimary,
     fontSize: 18,
     fontWeight: '500',
     letterSpacing: -0.2,
@@ -173,7 +176,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   nearestAlarm: {
-    color: '#9E9E9E',
+    color: colors.textSecondary,
     fontSize: 18,
     fontWeight: '500',
   },
@@ -193,6 +196,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
 
+  emptyState: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyStateText: {
+    fontSize: 44,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+
   fab: {
     position: 'absolute',
     right: 24,
@@ -200,7 +215,7 @@ const styles = StyleSheet.create({
     width: 86,
     height: 86,
     borderRadius: 22,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.accent,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -210,6 +225,6 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   fabIcon: {
-    color: '#636363',
+    color: colors.background,
   },
 });

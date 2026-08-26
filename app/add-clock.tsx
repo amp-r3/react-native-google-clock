@@ -1,66 +1,39 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { View, StyleSheet, TouchableOpacity, Text, FlatList } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import cityTimezones from 'city-timezones';
 import { addClock, removeClock, selectClocks } from "../src/store/clockSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { getFormattedTime } from "../src/utils/clockUtils";
 import { useHaptics } from "../src/hooks/useHaptics";
-
-const ALL_CITIES = cityTimezones.cityMapping;
-
-type City = {
-  city: string;
-  country: string;
-  timezone: string;
-};
-
-// Helpers
-const searchCities = (query: string): City[] => {
-  if (query.length < 2) return [];
-  const q = query.toLowerCase().trim();
-  return ALL_CITIES
-    .filter(
-      (c) =>
-        c.city.toLowerCase().includes(q) ||
-        c.country.toLowerCase().includes(q)
-    )
-    .slice(0, 20)
-    .map((c) => ({ city: c.city, country: c.country, timezone: c.timezone }));
-};
-
-
+import { useCitySearch, City } from "../src/hooks/useCitySearch";
+import { useTheme } from "../src/theme/ThemeProvider";
+import { ThemeColors } from "../src/theme/colors";
 
 export default function AddClockScreen() {
   const clocks = useSelector(selectClocks);
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<City[]>([]);
+  const { query, results, handleSearch, clear } = useCitySearch();
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { onToggle, onSelect, onDelete, onSoftPress } = useHaptics();
-
-  const handleSearch = useCallback((text: string) => {
-    setQuery(text);
-    setResults(searchCities(text));
-  }, []);
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const handleSelect = useCallback((city: City) => {
     if (clocks.find((c) => c.timezone === city.timezone)) {
-      onDelete();   
+      onDelete();
       dispatch(removeClock(city.timezone));
       navigation.goBack();
       return;
     }
-    onSelect();     
+    onSelect();
     dispatch(addClock(city));
-    setQuery('');
-    setResults([]);
+    clear();
     navigation.goBack();
-  }, [clocks, dispatch, navigation, onDelete, onSelect]);
+  }, [clocks, dispatch, navigation, onDelete, onSelect, clear]);
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
@@ -69,13 +42,13 @@ export default function AddClockScreen() {
           onPress={() => { onToggle(); navigation.goBack() }}
           style={styles.backButton}
         >
-          <MaterialCommunityIcons name="arrow-left" size={28} color="#F5F5F5" />
+          <MaterialCommunityIcons name="arrow-left" size={28} color={colors.textPrimary} />
         </TouchableOpacity>
 
         <View style={styles.searchWrapper}>
           <TextInput
             placeholder="Search city or country..."
-            placeholderTextColor="#9E9E9E"
+            placeholderTextColor={colors.textSecondary}
             style={styles.searchInput}
             autoFocus
             onChangeText={handleSearch}
@@ -85,12 +58,11 @@ export default function AddClockScreen() {
             <TouchableOpacity
               onPress={() => {
                 onSoftPress();
-                setQuery('');
-                setResults([]);
+                clear();
               }}
               style={styles.clearButton}
             >
-              <MaterialCommunityIcons name="close-circle" size={24} color="#9E9E9E" />
+              <MaterialCommunityIcons name="close-circle" size={24} color={colors.textSecondary} />
             </TouchableOpacity>
           )}
         </View>
@@ -110,7 +82,7 @@ export default function AddClockScreen() {
               const isSaved = clocks.some((c) => c.timezone === item.timezone)
               return (
                 <TouchableOpacity
-                  style={isSaved ? [styles.resultItem, { backgroundColor: '#191919' }] : styles.resultItem}
+                  style={isSaved ? [styles.resultItem, styles.resultItemSaved] : styles.resultItem}
                   onPress={() => handleSelect(item)}
                   activeOpacity={0.7}
                 >
@@ -120,7 +92,7 @@ export default function AddClockScreen() {
                   </View>
                   {
                     isSaved &&
-                    <MaterialCommunityIcons name="checkbox-marked-circle-outline" color='#fff' size={26} style={{ marginHorizontal: 15 }}></MaterialCommunityIcons>
+                    <MaterialCommunityIcons name="checkbox-marked-circle-outline" color={colors.textPrimary} size={26} style={{ marginHorizontal: 15 }}></MaterialCommunityIcons>
                   }
                   <View style={styles.timeRow}>
                     <Text style={styles.time}>{display12}</Text>
@@ -133,10 +105,10 @@ export default function AddClockScreen() {
             ItemSeparatorComponent={() => <View style={styles.separator} />}
             contentContainerStyle={styles.resultsList}
           />
-        ) : 
-        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', marginBottom: 400}}>
-          <MaterialCommunityIcons name="magnify" color='#AAA' size={80}></MaterialCommunityIcons>
-          <Text style={{fontSize: 22, color: '#AAA'}}>City ​​search</Text>
+        ) :
+        <View style={styles.emptyState}>
+          <MaterialCommunityIcons name="magnify" color={colors.textSecondary} size={80}></MaterialCommunityIcons>
+          <Text style={styles.emptyStateText}>City ​​search</Text>
         </View>
         }
       </View>
@@ -144,10 +116,10 @@ export default function AddClockScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#0F0F0F',
+    backgroundColor: colors.background,
   },
 
   header: {
@@ -164,7 +136,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1C1B1F',
+    backgroundColor: colors.surface,
     borderRadius: 28,
     paddingHorizontal: 20,
     height: 56,
@@ -176,7 +148,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    color: '#F5F5F5',
+    color: colors.textPrimary,
     fontSize: 17,
     fontWeight: '500',
   },
@@ -207,19 +179,22 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 24,
   },
+  resultItemSaved: {
+    backgroundColor: colors.surfaceSecondary,
+  },
   cityInfo: {
     flex: 1,
   },
   cityText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#F5F5F5',
+    color: colors.textPrimary,
     letterSpacing: -0.3,
   },
   countryText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#9E9E9E',
+    color: colors.textSecondary,
     marginTop: 2,
   },
   timeRow: {
@@ -230,16 +205,26 @@ const styles = StyleSheet.create({
   time: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#757575',
+    color: colors.textSecondary,
   },
   period: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#757575'
+    color: colors.textSecondary,
   },
   separator: {
     height: 1,
-    backgroundColor: '#2C2C2E',
+    backgroundColor: colors.border,
     marginHorizontal: 24,
+  },
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 400,
+  },
+  emptyStateText: {
+    fontSize: 22,
+    color: colors.textSecondary,
   },
 });

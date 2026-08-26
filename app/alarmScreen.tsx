@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Pressable,
   StyleSheet,
@@ -10,6 +10,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Alarm } from "../src/store/alarmSlice";
 import { useExistingAlarm } from "../src/hooks/useExistingAlarm";
 import { useHaptics } from "../src/hooks/useHaptics";
+import { useTheme } from "../src/theme/ThemeProvider";
+import { ThemeColors } from "../src/theme/colors";
 
 export default function AlarmScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -32,6 +34,8 @@ export default function AlarmScreen() {
   const existingAlarm = useExistingAlarm(id);
   const alarm: Alarm = existingAlarm ?? defaultAlarm;
   const { onSave, onDelete } = useHaptics();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (
     <View style={styles.root}>
@@ -61,10 +65,10 @@ export default function AlarmScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#141414",
+    backgroundColor: colors.background,
     justifyContent: "space-between",
   },
   content: {
@@ -74,13 +78,13 @@ const styles = StyleSheet.create({
     gap: 24,
   },
   time: {
-    color: "#f0f0f0",
+    color: colors.textPrimary,
     fontSize: 96,
     fontWeight: "600",
     letterSpacing: -1,
   },
   label: {
-    color: "#f0f0f0",
+    color: colors.textPrimary,
     fontSize: 32,
     fontWeight: "500",
   },
@@ -97,10 +101,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   btnSnooze: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: colors.accent,
   },
   btnDismiss: {
-    backgroundColor: "#454545",
+    backgroundColor: colors.surfaceSecondary,
   },
   btnText: {
     fontSize: 20,
@@ -108,9 +112,9 @@ const styles = StyleSheet.create({
     letterSpacing: 2
   },
   btnTextSnooze: {
-    color: "#4d4d4d",
+    color: colors.background,
   },
   btnTextDismiss: {
-    color: "#dbdbdb",
+    color: colors.textPrimary,
   },
 });

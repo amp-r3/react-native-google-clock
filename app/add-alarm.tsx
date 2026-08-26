@@ -2,6 +2,7 @@ import {
   View, Text, TouchableOpacity, StyleSheet,
   Switch, TextInput, ScrollView, KeyboardAvoidingView, Platform
 } from 'react-native';
+import { useMemo } from 'react';
 
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -11,6 +12,8 @@ import { useAlarmForm } from '../src/hooks/useAlarmForm';
 import { useHaptics } from '../src/hooks/useHaptics';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Toast from 'react-native-toast-message';
+import { useTheme } from '../src/theme/ThemeProvider';
+import { ThemeColors } from '../src/theme/colors';
 
 const DAYS: days[] = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as const;
 
@@ -42,6 +45,8 @@ export default function AddAlarmScreen() {
   } = useAlarmForm({ id, onSuccess: () => { router.back() } })
 
   const { onToggle, onDelete, onSave, onPress, onSelect, onSoftPress } = useHaptics()
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const { dateLabel } = getNextAlarmDay({ time, period, selectedDays, date: date ? new Date(date) : null })
 
@@ -128,7 +133,7 @@ export default function AddAlarmScreen() {
               style={styles.setAlarmBtn}
               onPress={() => { onDelete(); handleRemoveScheduled() }}
             >
-              <MaterialCommunityIcons name="calendar-remove" size={18} color="#8E8E93" />
+              <MaterialCommunityIcons name="calendar-remove" size={18} color={colors.textSecondary} />
               <Text style={[styles.setAlarmText]}>
                 unset alarm
               </Text>
@@ -138,7 +143,7 @@ export default function AddAlarmScreen() {
               style={styles.setAlarmBtn}
               onPress={() => { onSelect(); setShowDatePicker(true) }}
             >
-              <MaterialCommunityIcons name="calendar" size={18} color="#8E8E93" />
+              <MaterialCommunityIcons name="calendar" size={18} color={colors.textSecondary} />
               <Text style={styles.setAlarmText}>Set alarm.</Text>
             </TouchableOpacity>
           )}
@@ -164,23 +169,23 @@ export default function AddAlarmScreen() {
           >
             {/* Snooze */}
             <View style={styles.settingsRow}>
-              <MaterialCommunityIcons name="bed-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <MaterialCommunityIcons name="bed-outline" size={20} color={colors.textSecondary} style={styles.rowIcon} />
               <Text style={styles.rowLabel}>Snooze</Text>
               <TouchableOpacity>
-                <MaterialCommunityIcons name="plus" size={24} color="#A0A0A0" />
+                <MaterialCommunityIcons name="plus" size={24} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
             <View style={styles.separator} />
 
             {/* Alarm name */}
             <View style={styles.settingsRow}>
-              <MaterialCommunityIcons name="alarm" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <MaterialCommunityIcons name="alarm" size={20} color={colors.textSecondary} style={styles.rowIcon} />
               <Text style={styles.rowLabel}>Alarm name</Text>
               <TextInput
                 style={styles.inlineInput}
                 placeholder="Enter name"
                 onChangeText={setLabel}
-                placeholderTextColor="#8E8E93"
+                placeholderTextColor={colors.textSecondary}
                 value={label}
                 textAlign="right"
                 returnKeyType="done"
@@ -190,7 +195,7 @@ export default function AddAlarmScreen() {
 
             {/* Alarm sound */}
             <View style={styles.settingsRow}>
-              <MaterialCommunityIcons name="alarm-note" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <MaterialCommunityIcons name="alarm-note" size={20} color={colors.textSecondary} style={styles.rowIcon} />
               <Text style={styles.rowLabel}>Alarm sound</Text>
               <Text style={styles.rowValue}>Default (Morning Fresh)</Text>
             </View>
@@ -198,13 +203,13 @@ export default function AddAlarmScreen() {
 
             {/* Vibration */}
             <View style={styles.settingsRow}>
-              <MaterialCommunityIcons name="vibrate" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <MaterialCommunityIcons name="vibrate" size={20} color={colors.textSecondary} style={styles.rowIcon} />
               <Text style={styles.rowLabel}>Vibration</Text>
               <Switch
                 value={alarmOptions.vibration}
                 onValueChange={(value) => { onSoftPress(); handleOptionChange('vibration', value) }}
-                trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
-                thumbColor={alarmOptions.vibration ? '#FFFFFF' : '#636366'}
+                trackColor={{ false: colors.border, true: colors.border }}
+                thumbColor={alarmOptions.vibration ? colors.accent : colors.textSecondary}
                 style={styles.switchScale}
               />
             </View>
@@ -212,13 +217,13 @@ export default function AddAlarmScreen() {
 
             {/* Weather forecast */}
             <View style={styles.settingsRow}>
-              <MaterialCommunityIcons name="weather-cloudy" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <MaterialCommunityIcons name="weather-cloudy" size={20} color={colors.textSecondary} style={styles.rowIcon} />
               <Text style={styles.rowLabel}>Weather forecast</Text>
               <Switch
                 value={alarmOptions.weather}
                 onValueChange={(value) => { onSoftPress(); handleOptionChange('weather', value) }}
-                trackColor={{ false: '#3A3A3C', true: '#3A3A3C' }}
-                thumbColor={alarmOptions.weather ? '#FFFFFF' : '#636366'}
+                trackColor={{ false: colors.border, true: colors.border }}
+                thumbColor={alarmOptions.weather ? colors.accent : colors.textSecondary}
                 style={styles.switchScale}
               />
             </View>
@@ -226,10 +231,10 @@ export default function AddAlarmScreen() {
 
             {/* Apps */}
             <View style={styles.settingsRow}>
-              <MaterialCommunityIcons name="application-brackets" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <MaterialCommunityIcons name="application-brackets" size={20} color={colors.textSecondary} style={styles.rowIcon} />
               <Text style={styles.rowLabel}>Apps</Text>
               <TouchableOpacity>
-                <MaterialCommunityIcons name="plus" size={24} color="#A0A0A0" />
+                <MaterialCommunityIcons name="plus" size={24} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
             <View style={styles.separator} />
@@ -239,7 +244,7 @@ export default function AddAlarmScreen() {
               style={styles.settingsRow}
               onPress={onTestHandle}
             >
-              <MaterialCommunityIcons name="play-circle-outline" size={20} color="#A0A0A0" style={styles.rowIcon} />
+              <MaterialCommunityIcons name="play-circle-outline" size={20} color={colors.textSecondary} style={styles.rowIcon} />
               <Text style={styles.rowLabel}>Test alarm</Text>
               <MaterialCommunityIcons name="chevron-right" size={20} color="#A0A0A0" />
             </TouchableOpacity>
@@ -274,10 +279,10 @@ export default function AddAlarmScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   keyboardContainer: {
     flex: 1,
-    backgroundColor: '#0F0F0F',
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
@@ -298,19 +303,19 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
   },
   time: {
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     fontSize: 64,
     fontWeight: '300',
     letterSpacing: -2.5,
   },
   ampm: {
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     fontSize: 24,
     fontWeight: '400',
     marginLeft: 8,
   },
   changeButton: {
-    backgroundColor: '#1F1F1F',
+    backgroundColor: colors.surfaceSecondary,
     borderRadius: 28,
     paddingHorizontal: 22,
     paddingVertical: 12,
@@ -321,7 +326,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   changeButtonText: {
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -336,7 +341,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#1C1C1E',
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -345,16 +350,16 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   dayChipActive: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: colors.accent,
   },
   dayText: {
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     fontSize: 14,
     fontWeight: '700',
     letterSpacing: 0.3,
   },
   dayTextActive: {
-    color: '#0F0F0F',
+    color: colors.background,
   },
 
   /* Next Alarm */
@@ -366,12 +371,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   nextAlarmLabel: {
-    color: '#A0A0A0',
+    color: colors.textSecondary,
     fontSize: 15,
     fontWeight: '500',
   },
   nextAlarmValue: {
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     fontSize: 15,
     fontWeight: '600',
   },
@@ -383,14 +388,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   setAlarmText: {
-    color: '#A0A0A0',
+    color: colors.textSecondary,
     fontSize: 15,
     fontWeight: '500',
   },
 
   /* Settings Group */
   settingsGroup: {
-    backgroundColor: '#1C1C1E',
+    backgroundColor: colors.surface,
     borderRadius: 20,
     overflow: 'hidden',
     maxHeight: 370,
@@ -417,18 +422,18 @@ const styles = StyleSheet.create({
   },
   rowLabel: {
     flex: 1,
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     fontSize: 17,
     fontWeight: '500',
   },
   rowValue: {
-    color: '#A0A0A0',
+    color: colors.textSecondary,
     fontSize: 16,
     textAlign: 'right',
   },
   inlineInput: {
     flex: 1,
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     fontSize: 17,
     textAlign: 'right',
     padding: 0,
@@ -438,7 +443,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: 'rgba(255,255,255,0.22)',
+    backgroundColor: colors.border,
     marginLeft: 56,
   },
 
@@ -451,19 +456,19 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: '#2C2C2E',
+    backgroundColor: colors.surfaceSecondary,
     borderRadius: 20,
     paddingVertical: 18,
     alignItems: 'center',
   },
   cancelButtonText: {
-    color: '#E0E0E0',
+    color: colors.textPrimary,
     fontSize: 17,
     fontWeight: '600',
   },
   saveButton: {
     flex: 2,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: colors.accent,
     borderRadius: 20,
     paddingVertical: 18,
     alignItems: 'center',
@@ -474,7 +479,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   saveButtonText: {
-    color: '#0F0F0F',
+    color: colors.background,
     fontSize: 17,
     fontWeight: '700',
   },

@@ -1,14 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Clock } from '../store/clockSlice';
 import { getFormattedTime, getTimeDiff } from '../utils/clockUtils';
 import { to12Hour } from '../utils/timeFormat';
+import { useTheme } from '../theme/ThemeProvider';
+import { ThemeColors } from '../theme/colors';
 
 
 
 export default function ClockItem({ item }: { item: Clock }) {
   const [time, setTime] = useState(() => getFormattedTime(item.timezone));
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   useEffect(() => {
     const id = setInterval(() => setTime(getFormattedTime(item.timezone)), 1000);
@@ -42,12 +46,12 @@ export default function ClockItem({ item }: { item: Clock }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#1C1B1F',
+    backgroundColor: colors.surface,
     borderRadius: 28,
     paddingHorizontal: 24,
     paddingVertical: 20,
@@ -66,20 +70,20 @@ const styles = StyleSheet.create({
   country: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#9E9E9E',
+    color: colors.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   city: {
     fontSize: 19,
     fontWeight: '600',
-    color: '#F5F5F5',
+    color: colors.textPrimary,
     letterSpacing: -0.3,
   },
   timeDiff: {
     fontSize: 13,
     fontWeight: '400',
-    color: '#757575',
+    color: colors.textSecondary,
   },
 
   timeContainer: {
@@ -94,12 +98,12 @@ const styles = StyleSheet.create({
     fontSize: 50,
     fontWeight: '700',
     letterSpacing: -3,
-    color: '#F5F5F5', 
+    color: colors.textPrimary,
   },
   period: {
     marginBottom: 9,
     fontSize: 22,
     fontWeight: '600',
-    color: '#9E9E9E',
+    color: colors.textSecondary,
   },
 });

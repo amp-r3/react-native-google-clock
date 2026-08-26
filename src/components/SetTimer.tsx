@@ -1,7 +1,10 @@
+import { useMemo } from "react";
 import { DialButton } from "./DialButton";
 import { StyleSheet, Text, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TimerKeyboard } from "../../app/(tabs)/timer";
+import { useTheme } from "../theme/ThemeProvider";
+import { ThemeColors } from "../theme/colors";
 
 interface SetTimerProps {
   hours: number;
@@ -13,6 +16,9 @@ interface SetTimerProps {
 }
 
 export default function SetTimer({hours, minutes, seconds, numbsArr, handlePress, handleStart}: SetTimerProps) {
+  const { colors } = useTheme();
+  const style = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <>
 
@@ -32,7 +38,7 @@ export default function SetTimer({hours, minutes, seconds, numbsArr, handlePress
             }
           </View>
           <View style={{ marginTop: 15 }}>
-            <DialButton label={<MaterialCommunityIcons name='play-outline' size={32} />} onPress={handleStart} />
+            <DialButton label={<MaterialCommunityIcons name='play-outline' size={32} color={colors.textPrimary} />} onPress={handleStart} />
           </View>
         </View>
       </View>
@@ -40,7 +46,7 @@ export default function SetTimer({hours, minutes, seconds, numbsArr, handlePress
   )
 }
 
-const style = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   timerContainer: {
     justifyContent: 'center',
     flexDirection: 'row',
@@ -48,7 +54,7 @@ const style = StyleSheet.create({
     paddingTop: 40,
   },
   numbers: {
-    color: '#fff',
+    color: colors.textPrimary,
     fontSize: 40,
     fontWeight: 600,
   },
