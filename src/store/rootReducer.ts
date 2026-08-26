@@ -1,8 +1,8 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import alarmSlice from './alarmSlice';
-import clockSlice from './clockSlice';
+import alarmReducer from './alarmSlice';
+import clockReducer from './clockSlice';
 
 
 const alarmPersistConfig = {
@@ -17,8 +17,8 @@ const clockPersistConfig = {
 };
 
 const rootReducer = combineReducers({
-  alarm: persistReducer(alarmPersistConfig, alarmSlice),
-  clock: persistReducer(clockPersistConfig, clockSlice)
+  alarm: persistReducer(alarmPersistConfig, alarmReducer),
+  clock: persistReducer(clockPersistConfig, clockReducer)
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

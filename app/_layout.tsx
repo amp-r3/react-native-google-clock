@@ -3,7 +3,7 @@ import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { Provider } from 'react-redux';
 import { persistor, store } from "../src/store/store";
 import { useEffect } from "react";
-import { ActivityIndicator, useColorScheme, View } from "react-native";
+import { ActivityIndicator, useColorScheme } from "react-native";
 import Toast from 'react-native-toast-message';
 import { toastConfig } from "../src/components/ToastConfig";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';

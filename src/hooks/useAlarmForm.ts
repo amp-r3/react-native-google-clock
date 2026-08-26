@@ -66,7 +66,7 @@ export function useAlarmForm({ id, onSuccess }: UseAlarmFormParams) {
       weather: existingAlarm.options?.weather ?? false,
     });
     setDate(existingAlarm.days?.length ? undefined : existingAlarm.date);
-  }, [existingAlarm]);
+  }, [existingAlarm, initial.period, initial.time]);
 
   const handleDateSelection = (selectedDate: Date) => {
     const now = new Date();

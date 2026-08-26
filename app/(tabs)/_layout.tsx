@@ -10,7 +10,7 @@ import {
   LayoutChangeEvent,
   Easing,
 } from "react-native";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { TabActions } from "@react-navigation/native";
 
@@ -30,7 +30,7 @@ function AnimatedTabBar({ state, navigation }: BottomTabBarProps) {
   const pillWidth = useRef(new Animated.Value(0)).current;
   const isMounted = useRef(false);
 
-  const animatePill = (index: number) => {
+  const animatePill = useCallback((index: number) => {
     const layout = tabLayouts.current[index];
     if (!layout) return;
 
@@ -47,7 +47,7 @@ function AnimatedTabBar({ state, navigation }: BottomTabBarProps) {
       easing: Easing.bezier(0.25, 0.1, 0.25, 1),
       useNativeDriver: false,
     }).start();
-  };
+  }, [pillX, pillWidth]);
 
   useEffect(() => {
     if (!isMounted.current) {
@@ -60,7 +60,7 @@ function AnimatedTabBar({ state, navigation }: BottomTabBarProps) {
       return;
     }
     animatePill(state.index);
-  }, [state.index]);
+  }, [state.index, animatePill, pillWidth, pillX]);
 
   const handleLayout = (e: LayoutChangeEvent, index: number) => {
     const { x, width } = e.nativeEvent.layout;

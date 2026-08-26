@@ -60,7 +60,7 @@ export default function AddClockScreen() {
     setQuery('');
     setResults([]);
     navigation.goBack();
-  }, [clocks, dispatch, navigation]);
+  }, [clocks, dispatch, navigation, onDelete, onSelect]);
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>

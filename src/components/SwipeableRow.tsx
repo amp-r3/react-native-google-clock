@@ -41,7 +41,7 @@ export default function SwipeableRow({ children, onRemove }: Props) {
         runOnJS(onRemove)();
       }
     });
-  }, [triggerHaptic, onRemove]);
+  }, [triggerHaptic, onRemove, opacity, marginBottom, height]);
 
   const gesture = Gesture.Pan()
     .activeOffsetX([-10, 10])
